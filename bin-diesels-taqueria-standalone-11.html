@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bin Diesel's Taqueria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=VT323&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;}
+body{background:#1a0a00;overflow:hidden;font-family:'VT323',monospace;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;}
+#app{width:100%;max-width:680px;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+
+/* ── BACKGROUND ── */
+#bg{position:absolute;inset:0;z-index:0;}
+#bg-wall{position:absolute;top:0;left:0;right:0;height:200px;background-color:#6b3a2a;background-image:repeating-linear-gradient(180deg,transparent 0px,transparent 22px,rgba(0,0,0,.3) 22px,rgba(0,0,0,.3) 24px),repeating-linear-gradient(0deg,transparent 0px,transparent 56px,rgba(0,0,0,.2) 56px,rgba(0,0,0,.2) 58px);}
+#bg-counter{position:absolute;top:195px;left:0;right:0;height:52px;background:linear-gradient(180deg,#e8c87a 0%,#c8983a 35%,#a07020 70%,#7a5010 100%);border-top:4px solid #f0d888;border-bottom:5px solid #5a3808;box-shadow:0 6px 18px rgba(0,0,0,.6);}
+#bg-floor{position:absolute;top:247px;left:0;right:0;bottom:0;background-color:#d4b078;background-image:repeating-linear-gradient(0deg,transparent 0px,transparent 48px,rgba(0,0,0,.12) 48px,rgba(0,0,0,.12) 50px),repeating-linear-gradient(90deg,transparent 0px,transparent 48px,rgba(0,0,0,.12) 48px,rgba(0,0,0,.12) 50px);}
+#bg-deco{position:absolute;top:14px;left:0;right:0;z-index:1;pointer-events:none;}
+
+/* ── TOPBAR ── */
+#topbar{height:auto;min-height:40px;background:linear-gradient(180deg,#1a0900,#2d1100);border-bottom:3px solid #c8760a;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:4px 10px;gap:2px;flex-shrink:0;position:relative;z-index:40;box-shadow:0 3px 10px rgba(0,0,0,.7);}
+.tb-stat{font-size:clamp(13px,3.5vw,18px);color:#f5c842;text-shadow:1px 1px 0 #000;white-space:nowrap;}
+.tb-stat span{color:#ff9933;}
+#timer-outer{width:120px;height:12px;background:#111;border:2px solid #c8760a;border-radius:6px;overflow:hidden;display:inline-block;vertical-align:middle;}
+#timer-inner{height:100%;background:#44cc66;transition:width .4s linear,background .4s;border-radius:4px;}
+
+/* ── MAIN LAYOUT ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:10;}
+
+/* ── REGISTER PANEL ── */
+#register{width:100%;flex-shrink:0;display:flex;flex-direction:row;align-items:stretch;background:linear-gradient(180deg,rgba(30,15,0,.96),rgba(50,25,5,.96));border-bottom:3px solid #8b5a1a;border-right:none;box-shadow:0 4px 12px rgba(0,0,0,.6);overflow:hidden;max-height:160px;}
+#reg-header{background:linear-gradient(180deg,#1a0800,#2a1200);border-right:2px solid #c8760a;padding:8px 6px;font-size:16px;color:#f5c842;letter-spacing:1px;text-align:center;text-shadow:2px 2px 0 #000;flex-shrink:0;display:flex;align-items:center;writing-mode:vertical-rl;transform:rotate(180deg);}
+#reg-machine{display:none;}
+#receipt-wrap{background:#fffae8;margin:3px 6px 3px 0;border:2px solid #b8780a;border-radius:4px;flex:1;overflow:hidden;padding:5px 7px;min-height:0;box-shadow:inset 0 2px 6px rgba(0,0,0,.15);columns:2 auto;column-gap:8px;column-fill:auto;height:100%;}
+.rct-title{font-size:clamp(11px,3vw,14px);font-weight:700;color:#8b2000;border-bottom:1px dashed #c8860a;margin-bottom:3px;column-span:all;}
+.rct-row{font-size:clamp(10px,2.8vw,13px);color:#2d1200;margin:1px 0;}
+.rct-row.main-item{font-size:clamp(12px,3.2vw,15px);color:#8b2000;font-weight:700;}
+.rct-total{font-size:clamp(11px,3vw,15px);color:#8b4000;font-weight:700;border-top:1px dashed #c8860a;margin-top:3px;padding-top:2px;column-span:all;}
+
+/* ── KITCHEN PANEL ── */
+#kitchen{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;min-height:0;}
+#kitchen-header{background:linear-gradient(180deg,#1a0800,#2a1200);border-bottom:2px solid #c8760a;padding:4px 8px;font-size:clamp(12px,3.5vw,17px);color:#f5c842;letter-spacing:1px;text-align:center;text-shadow:2px 2px 0 #000;flex-shrink:0;z-index:2;position:relative;}
+
+/* ── PLATE AREA ── */
+#plate-area{flex-shrink:0;height:clamp(88px,20vw,115px);background:linear-gradient(180deg,#c8983a 0%,#a07020 60%,#7a5010 100%);border-bottom:4px solid #5a3808;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 8px;position:relative;box-shadow:inset 0 4px 10px rgba(0,0,0,.3);}
+#plate-area::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.18);}
+#the-plate{width:clamp(140px,42vw,200px);height:clamp(64px,18vw,90px);position:relative;cursor:default;flex-shrink:0;touch-action:manipulation;}
+#the-plate::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:170px;height:14px;background:radial-gradient(ellipse,rgba(0,0,0,.45) 0%,transparent 70%);border-radius:50%;}
+#plate-svg{width:100%;height:100%;overflow:visible;}
+#beer-mug{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+/* ── INGREDIENT SHELVES ── */
+#shelves{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px clamp(96px,calc(16vw + 16px),126px) 4px 6px;}
+#shelves::-webkit-scrollbar{width:6px;}
+#shelves::-webkit-scrollbar-track{background:#2a1800;}
+#shelves::-webkit-scrollbar-thumb{background:#c8760a;border-radius:3px;}
+.shelf{margin-bottom:6px;}
+.shelf-title{font-size:clamp(13px,3.5vw,16px);color:#ffffff;letter-spacing:1px;margin-bottom:3px;border-bottom:1px solid #8b5020;padding-bottom:2px;text-shadow:1px 1px 3px #000,0 0 8px rgba(0,0,0,.8);font-weight:700;}
+.shelf-items{display:flex;flex-wrap:wrap;gap:5px;}
+.ing-card{position:relative;background:transparent;border:none;color:#f5c842;padding:3px 3px 4px;cursor:pointer;font-family:'VT323',monospace;text-align:center;border-radius:6px;display:inline-flex;flex-direction:column;align-items:center;gap:2px;width:clamp(62px,17vw,82px);min-height:52px;transition:transform .1s,filter .1s;text-shadow:1px 1px 2px rgba(0,0,0,.9);filter:drop-shadow(0 3px 4px rgba(0,0,0,.5));-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.ing-card:hover{transform:translateY(-4px) scale(1.08);filter:drop-shadow(0 6px 8px rgba(0,0,0,.6)) brightness(1.15);}
+.ing-card:active{transform:translateY(1px) scale(.97);}
+#app.show-hints .ing-card.needed{
+  filter:drop-shadow(0 0 8px #00ff66) drop-shadow(0 0 16px #00ff66) drop-shadow(0 0 28px #00cc44) drop-shadow(0 2px 4px rgba(0,0,0,.6));
+  animation:hintPulse .6s ease-in-out infinite alternate;
+  position:relative;
+  z-index:5;
+}
+@keyframes hintPulse{
+  0%{filter:drop-shadow(0 0 6px #00ff66) drop-shadow(0 0 14px #00ff44) drop-shadow(0 0 24px #00aa33) drop-shadow(0 2px 4px rgba(0,0,0,.6));}
+  100%{filter:drop-shadow(0 0 12px #44ffaa) drop-shadow(0 0 24px #00ff66) drop-shadow(0 0 40px #00ee55) drop-shadow(0 2px 4px rgba(0,0,0,.6));}
+}
+.ing-card.done{opacity:.45;cursor:not-allowed;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3)) grayscale(.4);}
+.ing-card svg{display:block;}
+.ing-card .ic-name{font-size:clamp(11px,3vw,14px);line-height:1.2;color:#ffffff;font-weight:700;text-shadow:1px 1px 3px #000,0 0 8px rgba(0,0,0,.8);}
+.plate-chip{display:inline-flex;align-items:center;gap:3px;background:rgba(0,0,0,.35);padding:4px 7px 4px 3px;border-radius:10px;cursor:pointer;transition:background .1s;min-height:28px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.plate-chip:hover{background:rgba(200,50,50,.5);}
+.plate-chip svg{display:block;}
+.plate-chip span{font-size:9px;color:#fff;font-family:'VT323',monospace;line-height:1;}
+
+/* ── SERVE BUTTON ── */
+#btn-serve{background:linear-gradient(180deg,#cc1111,#881010);color:#ffe0e0;border:3px solid #ff5555;padding:8px 18px;font-size:clamp(15px,4vw,20px);cursor:pointer;font-family:'VT323',monospace;letter-spacing:2px;border-radius:4px;text-shadow:1px 1px 0 #000;box-shadow:0 3px 0 #440000;min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+#btn-serve:hover:not(:disabled){background:linear-gradient(180deg,#ee2222,#cc1111);}
+#btn-serve:active:not(:disabled){background:linear-gradient(180deg,#ff3333,#ee2222);transform:scale(.97);}
+#btn-serve:disabled{background:linear-gradient(180deg,#2a2a2a,#1a1a1a);border-color:#444;color:#555;cursor:not-allowed;box-shadow:none;}
+
+/* ── BIN DIESEL ── */
+#bd-wrap{position:absolute;bottom:4px;right:6px;width:clamp(80px,16vw,110px);height:clamp(100px,20vw,138px);pointer-events:none;z-index:50;filter:drop-shadow(4px 10px 12px rgba(0,0,0,.85));}
+#bd-bubble{position:absolute;bottom:142px;right:0;background:#fffae8;border:2px solid #c8860a;border-radius:8px;padding:5px 9px;font-size:13px;color:#2d1200;font-family:'VT323',monospace;display:none;max-width:155px;white-space:normal;text-align:center;box-shadow:2px 3px 8px rgba(0,0,0,.5);z-index:60;}
+#bd-bubble::after{content:'';position:absolute;bottom:-10px;right:16px;border:5px solid transparent;border-top-color:#c8860a;}
+@keyframes bdIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes bdHappy{0%{transform:rotate(-10deg) scale(1.05)}50%{transform:rotate(10deg) scale(1.05)}100%{transform:rotate(0) scale(1)}}
+@keyframes bdAngry{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes eyeP{0%,100%{opacity:1}50%{opacity:.35}}
+#bd-svg{animation:bdIdle 2.5s ease-in-out infinite;}
+@keyframes bdExplode{0%{transform:scale(1) rotate(0deg);opacity:1}15%{transform:scale(1.8) rotate(-20deg);opacity:1}40%{transform:scale(1.5) rotate(25deg);opacity:.9}70%{transform:scale(0.6) rotate(-30deg);opacity:.5}100%{transform:scale(0) rotate(60deg);opacity:0}}
+@keyframes explodeParticle{0%{transform:translate(0,0) scale(1.2);opacity:1}15%{opacity:1}80%{opacity:.6}100%{transform:translate(var(--dx),var(--dy)) scale(0) rotate(var(--rot,0deg));opacity:0}}
+#explosion-layer{position:absolute;inset:0;pointer-events:none;z-index:80;overflow:hidden;}
+.expart{position:absolute;width:12px;height:12px;border-radius:50%;animation:explodeParticle .8s ease-out forwards;}
+@keyframes fireball{0%{transform:scale(0);opacity:1}30%{transform:scale(1);opacity:.9}70%{transform:scale(1.4);opacity:.5}100%{transform:scale(2.2);opacity:0}}
+@keyframes shockwave{0%{transform:scale(0);opacity:.8}100%{transform:scale(3);opacity:0}}
+.exfireball{position:absolute;border-radius:50%;animation:fireball .7s ease-out forwards;pointer-events:none;}
+.exshock{position:absolute;border-radius:50%;border:4px solid #ff8800;animation:shockwave .5s ease-out forwards;pointer-events:none;}
+@keyframes screenFlash{0%,100%{opacity:0}50%{opacity:.35}}
+.ex-screen-flash{position:absolute;inset:0;background:radial-gradient(ellipse at center,#ffcc00,#ff4400);pointer-events:none;animation:screenFlash .35s ease-out forwards;z-index:79;}
+#mute-btn{float:right;margin:-3px -4px 4px 8px;background:#fffae8;border:1.5px solid #c8860a;color:#8b4000;font-family:'VT323',monospace;font-size:13px;padding:3px 8px;cursor:pointer;border-radius:3px;min-height:28px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.15);column-span:all;}
+@keyframes toastPop{0%{transform:translateY(0) scale(.8);opacity:0}20%{transform:translateY(-8px) scale(1.1);opacity:1}80%{transform:translateY(-16px) scale(1);opacity:1}100%{transform:translateY(-28px) scale(.9);opacity:0}}
+.freebie-toast{position:absolute;background:#ff2266;color:#fff;font-family:'VT323',monospace;font-size:16px;font-weight:700;padding:4px 10px;border-radius:4px;pointer-events:none;z-index:90;white-space:nowrap;animation:toastPop .9s ease forwards;}
+
+
+/* ── OVERLAY ── */
+#overlay{position:absolute;inset:0;background:rgba(8,3,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:20px;text-align:center;overflow-y:auto;}
+#overlay.hidden{display:none;}
+.ov-big{font-family:'Permanent Marker',cursive;font-size:clamp(30px,9vw,44px);color:#ff8c1a;text-shadow:4px 4px 0 #7a3000;line-height:1.1;}
+.ov-sub{font-size:20px;color:#f5c842;margin:4px 0 10px;font-family:'VT323',monospace;}
+.ov-btn{background:linear-gradient(180deg,#ff8c1a,#c85e00);color:#1a0500;border:3px solid #f5c842;padding:12px 28px;font-size:clamp(17px,5vw,22px);cursor:pointer;font-family:'VT323',monospace;letter-spacing:2px;margin:5px;border-radius:4px;box-shadow:0 4px 0 #5a2000;min-height:48px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.ov-btn:hover{background:linear-gradient(180deg,#ffaa33,#ff8c1a);}
+.ov-btn.sec{background:linear-gradient(180deg,#3a3a3a,#1a1a1a);border-color:#777;color:#ccc;box-shadow:0 4px 0 #080808;}
+.ov-btn.sec:hover{background:linear-gradient(180deg,#555,#333);}
+.ob-wrap{background:#2d1200;border:2px solid #7a4010;padding:11px 16px;margin:8px 0;text-align:left;min-width:230px;border-radius:6px;}
+.ob-row{display:flex;justify-content:space-between;font-size:16px;color:#f5c842;margin:3px 0;font-family:'VT323',monospace;}
+.ob-row.tot{border-top:1px solid #ff8c1a;padding-top:4px;font-size:17px;color:#ff8c1a;}
+.res-head{font-size:clamp(28px,8vw,40px);font-weight:900;margin-bottom:4px;font-family:'VT323',monospace;}
+.res-head.win{color:#44dd77;text-shadow:3px 3px 0 #115522;}
+.res-head.lose{color:#ff4444;text-shadow:3px 3px 0 #881111;}
+.res-amt{font-size:clamp(36px,10vw,52px);color:#f5c842;text-shadow:3px 3px 0 #7a5000;margin-bottom:4px;font-family:'VT323',monospace;}
+.ov-msg{font-size:15px;color:#c8a060;margin:5px 0 10px;line-height:1.6;font-family:'VT323',monospace;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- BACKGROUND -->
+<div id="bg">
+  <div id="bg-wall"></div>
+  <div id="bg-counter"></div>
+  <div id="bg-floor"></div>
+  <svg id="bg-deco" viewBox="0 0 680 80" width="100%" height="80" style="position:absolute;top:14px;left:0;">
+    <line x1="60" y1="0" x2="60" y2="22" stroke="#333" stroke-width="2"/>
+    <ellipse cx="60" cy="34" rx="18" ry="12" fill="#444" stroke="#222" stroke-width="2"/>
+    <rect x="42" y="22" width="36" height="16" rx="4" fill="#555" stroke="#333" stroke-width="1.5"/>
+    <rect x="55" y="18" width="10" height="6" rx="3" fill="#333"/>
+    <line x1="180" y1="0" x2="180" y2="18" stroke="#333" stroke-width="2"/>
+    <ellipse cx="180" cy="26" rx="22" ry="8" fill="#666" stroke="#333" stroke-width="2"/>
+    <rect x="158" y="20" width="44" height="14" rx="3" fill="#777" stroke="#444" stroke-width="1.5"/>
+    <rect x="202" y="23" width="28" height="4" rx="2" fill="#555"/>
+    <rect x="280" y="8" width="120" height="52" rx="4" fill="#5a3a1a" stroke="#3a2010" stroke-width="2"/>
+    <rect x="283" y="11" width="114" height="46" rx="3" fill="#4a3010"/>
+    <rect x="286" y="14" width="22" height="38" rx="3" fill="#8b6a3a" stroke="#6a4a1a" stroke-width="1"/>
+    <rect x="312" y="14" width="22" height="38" rx="3" fill="#c88040" stroke="#8b5a1a" stroke-width="1"/>
+    <rect x="338" y="14" width="22" height="38" rx="3" fill="#8b4a2a" stroke="#6a3010" stroke-width="1"/>
+    <rect x="364" y="14" width="22" height="38" rx="3" fill="#4a7a30" stroke="#2a5010" stroke-width="1"/>
+    <text x="297" y="37" text-anchor="middle" font-size="7" fill="#ffe0a0" font-family="VT323,monospace">SALT</text>
+    <text x="323" y="37" text-anchor="middle" font-size="7" fill="#ffe0a0" font-family="VT323,monospace">CHILI</text>
+    <text x="349" y="37" text-anchor="middle" font-size="7" fill="#ffe0a0" font-family="VT323,monospace">CUMIN</text>
+    <text x="375" y="37" text-anchor="middle" font-size="7" fill="#ffe0a0" font-family="VT323,monospace">HERB</text>
+    <line x1="520" y1="0" x2="520" y2="18" stroke="#333" stroke-width="2"/>
+    <ellipse cx="520" cy="26" rx="22" ry="8" fill="#555" stroke="#333" stroke-width="2"/>
+    <rect x="498" y="20" width="44" height="14" rx="3" fill="#666" stroke="#444" stroke-width="1.5"/>
+    <rect x="470" y="23" width="28" height="4" rx="2" fill="#555"/>
+    <line x1="630" y1="0" x2="630" y2="22" stroke="#333" stroke-width="2"/>
+    <ellipse cx="630" cy="34" rx="18" ry="12" fill="#444" stroke="#222" stroke-width="2"/>
+    <rect x="612" y="22" width="36" height="16" rx="4" fill="#555" stroke="#333" stroke-width="1.5"/>
+    <rect x="625" y="18" width="10" height="6" rx="3" fill="#333"/>
+  </svg>
+</div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-stat">&#36;<span id="tb-money">0.00</span></div>
+  <div class="tb-stat" style="display:flex;align-items:center;gap:7px;">
+    &#9201;
+    <div id="timer-outer"><div id="timer-inner" style="width:100%"></div></div>
+    <span id="tb-time">--</span>
+  </div>
+  <div class="tb-stat">ORDER <span id="tb-order">--</span></div>
+  <div class="tb-stat">PAY: <span id="tb-pay">$0.00</span></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- REGISTER -->
+  <div id="register">
+    <div id="reg-header">REGISTER</div>
+    <div id="reg-machine">
+      <svg viewBox="0 0 160 100" width="148" height="92">
+        <defs>
+          <linearGradient id="rg-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#606060"/><stop offset="100%" stop-color="#282828"/></linearGradient>
+          <linearGradient id="rg-top" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#383838"/><stop offset="100%" stop-color="#181818"/></linearGradient>
+          <linearGradient id="rg-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#003800"/><stop offset="100%" stop-color="#001800"/></linearGradient>
+        </defs>
+        <rect x="5" y="68" width="150" height="28" rx="6" fill="url(#rg-body)" stroke="#888" stroke-width="1.5"/>
+        <rect x="5" y="74" width="150" height="16" fill="#222" stroke="#555" stroke-width="1"/>
+        <rect x="55" y="77" width="50" height="9" rx="4" fill="#333" stroke="#666" stroke-width="1"/>
+        <circle cx="80" cy="82" r="3.5" fill="#999" stroke="#bbb" stroke-width="1"/>
+        <rect x="8" y="26" width="144" height="46" rx="7" fill="url(#rg-body)" stroke="#777" stroke-width="1.5"/>
+        <rect x="8" y="26" width="144" height="4" rx="2" fill="rgba(255,255,255,.12)"/>
+        <rect x="16" y="10" width="128" height="24" rx="5" fill="url(#rg-top)" stroke="#555" stroke-width="1.5"/>
+        <rect x="20" y="13" width="120" height="18" rx="3" fill="url(#rg-screen)"/>
+        <rect x="22" y="14" width="36" height="5" rx="2" fill="rgba(255,255,255,.07)"/>
+        <text x="80" y="25.5" text-anchor="middle" font-size="11" fill="#00ff88" font-family="VT323,monospace" id="reg-screen-txt">READY</text>
+        <rect x="16" y="36" width="13" height="8" rx="2" fill="#e07818"/>
+        <rect x="32" y="36" width="13" height="8" rx="2" fill="#e07818"/>
+        <rect x="48" y="36" width="13" height="8" rx="2" fill="#e07818"/>
+        <rect x="64" y="36" width="13" height="8" rx="2" fill="#e07818"/>
+        <rect x="80" y="36" width="13" height="8" rx="2" fill="#e07818"/>
+        <rect x="96" y="36" width="13" height="8" rx="2" fill="#aa1111"/>
+        <rect x="16" y="50" width="13" height="8" rx="2" fill="#444"/>
+        <rect x="32" y="50" width="13" height="8" rx="2" fill="#444"/>
+        <rect x="48" y="50" width="13" height="8" rx="2" fill="#444"/>
+        <rect x="64" y="50" width="13" height="8" rx="2" fill="#444"/>
+        <rect x="80" y="50" width="32" height="8" rx="2" fill="#116633"/>
+        <rect x="55" y="68" width="50" height="4" rx="2" fill="#111"/>
+        <rect x="10" y="26" width="140" height="3" rx="1" fill="rgba(255,255,255,.1)"/>
+      </svg>
+    </div>
+    <div id="receipt-wrap">
+      <button id="mute-btn" onclick="toggleMute()">♪ ON</button>
+      <div class="rct-title" id="rct-cust">Waiting...</div>
+      <div id="rct-items"></div>
+      <div class="rct-total" id="rct-total"></div>
+    </div>
+  </div>
+
+  <!-- KITCHEN -->
+  <div id="kitchen">
+    <div id="kitchen-header">KITCHEN — click or drag ingredients onto the plate</div>
+
+    <div id="plate-area">
+      <!-- Beer mug decoration -->
+      <div id="beer-mug">
+        <svg viewBox="0 0 80 100" width="72" height="90">
+          <defs>
+            <linearGradient id="mug-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#d4a830"/><stop offset="30%" stop-color="#f0d060"/><stop offset="70%" stop-color="#e0b840"/><stop offset="100%" stop-color="#a07820"/></linearGradient>
+            <linearGradient id="foam-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e0d0"/></linearGradient>
+            <linearGradient id="beer-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0c030"/><stop offset="100%" stop-color="#b07010"/></linearGradient>
+          </defs>
+          <ellipse cx="34" cy="97" rx="26" ry="5" fill="rgba(0,0,0,.35)"/>
+          <path d="M10 22 L10 82 Q10 88 16 90 L52 90 Q58 88 58 82 L58 22 Z" fill="url(#mug-g)" stroke="#8a6010" stroke-width="2"/>
+          <path d="M12 38 L12 82 Q12 86 16 88 L52 88 Q56 86 56 82 L56 38 Z" fill="url(#beer-g)"/>
+          <circle cx="22" cy="70" r="2" fill="rgba(255,220,80,.5)"/>
+          <circle cx="35" cy="60" r="1.5" fill="rgba(255,220,80,.5)"/>
+          <circle cx="46" cy="72" r="2.5" fill="rgba(255,220,80,.4)"/>
+          <circle cx="28" cy="80" r="1.5" fill="rgba(255,220,80,.4)"/>
+          <ellipse cx="34" cy="24" rx="24" ry="8" fill="url(#foam-g)" stroke="#d0c8b8" stroke-width="1"/>
+          <ellipse cx="26" cy="21" rx="9" ry="5" fill="white" opacity=".9"/>
+          <ellipse cx="42" cy="20" rx="8" ry="4.5" fill="white" opacity=".85"/>
+          <ellipse cx="34" cy="19" rx="7" ry="4" fill="white" opacity=".8"/>
+          <ellipse cx="18" cy="23" rx="6" ry="4" fill="white" opacity=".75"/>
+          <ellipse cx="50" cy="23" rx="6" ry="4" fill="white" opacity=".75"/>
+          <path d="M14 28 Q12 34 13 40" stroke="rgba(255,255,255,.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M58 36 Q76 36 76 52 Q76 68 58 68" stroke="#a07820" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M58 36 Q74 36 74 52 Q74 68 58 68" stroke="#d4a830" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M14 28 Q13 55 14 78" stroke="rgba(255,255,255,.25)" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <ellipse cx="34" cy="90" rx="22" ry="4" fill="#8a6010" opacity=".5"/>
+          <ellipse cx="44" cy="58" rx="1.5" ry="3" fill="rgba(255,255,255,.3)"/>
+          <ellipse cx="50" cy="70" rx="1" ry="2.5" fill="rgba(255,255,255,.25)"/>
+        </svg>
+      </div>
+
+      <!-- Plate drop zone -->
+      <div id="the-plate">
+        <svg id="plate-svg" viewBox="0 0 200 88" width="200" height="88" overflow="visible">
+          <defs>
+            <radialGradient id="plate-face" cx="45%" cy="35%">
+              <stop offset="0%" stop-color="#f8f4ee"/>
+              <stop offset="70%" stop-color="#e8e0d0"/>
+              <stop offset="100%" stop-color="#c8b898"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="100" cy="92" rx="88" ry="10" fill="rgba(0,0,0,.4)"/>
+          <ellipse cx="100" cy="54" rx="92" ry="24" fill="#b8a070" stroke="#8a7040" stroke-width="2"/>
+          <ellipse cx="100" cy="46" rx="92" ry="24" fill="url(#plate-face)" stroke="#c8b888" stroke-width="2.5"/>
+          <ellipse cx="100" cy="44" rx="76" ry="18" fill="none" stroke="rgba(160,140,100,.4)" stroke-width="1.5"/>
+          <path d="M 30 36 Q 100 22 170 36" stroke="rgba(255,255,255,.55)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div id="plate-items" style="position:absolute;top:4px;left:0;right:0;display:flex;flex-wrap:wrap;justify-content:center;gap:3px;padding:0 18px;"></div>
+        <div id="plate-drop-hint" style="position:absolute;top:32px;left:0;right:0;text-align:center;font-size:11px;color:rgba(120,90,40,.7);font-family:'VT323',monospace;pointer-events:none;"></div>
+      </div>
+
+      <!-- Progress + Serve -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;">
+        <div id="build-progress" style="font-size:14px;color:#f5c842;text-shadow:1px 1px 0 #000;text-align:center;min-width:80px;"></div>
+        <button id="btn-serve" disabled onclick="serveOrder()">SERVE!</button>
+      </div>
+    </div>
+
+    <div id="shelves"></div>
+  </div>
+</div>
+
+<!-- BIN DIESEL -->
+<div id="bd-wrap">
+  <div id="bd-bubble"></div>
+  <svg id="bd-svg" viewBox="40 80 320 400" width="100%" height="100%" style="overflow:visible;">
+    <defs>
+      <linearGradient id="bd-body-g" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#3a3f42"/><stop offset="18%" stop-color="#5a6266"/>
+        <stop offset="42%" stop-color="#7a8488"/><stop offset="65%" stop-color="#5c6468"/>
+        <stop offset="100%" stop-color="#2e3236"/>
+      </linearGradient>
+      <linearGradient id="bd-lid-g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#9aa0a6"/><stop offset="30%" stop-color="#c8cdd0"/>
+        <stop offset="70%" stop-color="#8a9096"/><stop offset="100%" stop-color="#5a6068"/>
+      </linearGradient>
+      <linearGradient id="bd-lid-edge" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b0b8be"/><stop offset="100%" stop-color="#6a7278"/>
+      </linearGradient>
+      <linearGradient id="bd-tread-g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#3a3e42"/><stop offset="100%" stop-color="#1a1e22"/>
+      </linearGradient>
+      <linearGradient id="bd-arm-g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#505558"/><stop offset="100%" stop-color="#2a2e32"/>
+      </linearGradient>
+      <radialGradient id="eye-rg" cx="35%" cy="30%" r="65%">
+        <stop offset="0%" stop-color="#ff9999"/><stop offset="35%" stop-color="#ff2200"/>
+        <stop offset="100%" stop-color="#6a0000"/>
+      </radialGradient>
+      <radialGradient id="bd-eye-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#ff3300" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#ff0000" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <!-- ground shadow -->
+    <ellipse cx="200" cy="494" rx="120" ry="10" fill="#0a0a0a" opacity="0.3"/>
+    <!-- LEFT TREAD -->
+    <rect x="50" y="404" width="114" height="76" rx="36" fill="url(#bd-tread-g)" stroke="#111" stroke-width="2.5"/>
+    <rect x="58" y="412" width="98" height="60" rx="30" fill="#252a2e"/>
+    <rect x="52" y="404" width="16" height="76" rx="8" fill="#323840" stroke="#111" stroke-width="1.5"/>
+    <rect x="72" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="88" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="104" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="120" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="136" y="404" width="16" height="76" rx="8" fill="#323840" stroke="#111" stroke-width="1.5"/>
+    <circle cx="72" cy="442" r="22" fill="#1e2226" stroke="#444" stroke-width="2"/>
+    <circle cx="72" cy="442" r="13" fill="#2a2e32" stroke="#555" stroke-width="1.5"/>
+    <circle cx="72" cy="442" r="5" fill="#555c64" stroke="#777" stroke-width="1"/>
+    <circle cx="142" cy="442" r="22" fill="#1e2226" stroke="#444" stroke-width="2"/>
+    <circle cx="142" cy="442" r="13" fill="#2a2e32" stroke="#555" stroke-width="1.5"/>
+    <circle cx="142" cy="442" r="5" fill="#555c64" stroke="#777" stroke-width="1"/>
+    <circle cx="107" cy="464" r="14" fill="#1e2226" stroke="#444" stroke-width="1.5"/>
+    <circle cx="107" cy="464" r="7" fill="#252a2e" stroke="#555" stroke-width="1"/>
+    <rect x="60" y="413" width="92" height="7" rx="3" fill="rgba(255,255,255,0.06)"/>
+    <!-- RIGHT TREAD -->
+    <rect x="236" y="404" width="114" height="76" rx="36" fill="url(#bd-tread-g)" stroke="#111" stroke-width="2.5"/>
+    <rect x="244" y="412" width="98" height="60" rx="30" fill="#252a2e"/>
+    <rect x="238" y="404" width="16" height="76" rx="8" fill="#323840" stroke="#111" stroke-width="1.5"/>
+    <rect x="258" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="274" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="290" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="306" y="404" width="13" height="76" rx="6" fill="#2c3238" stroke="#111" stroke-width="1"/>
+    <rect x="322" y="404" width="16" height="76" rx="8" fill="#323840" stroke="#111" stroke-width="1.5"/>
+    <circle cx="258" cy="442" r="22" fill="#1e2226" stroke="#444" stroke-width="2"/>
+    <circle cx="258" cy="442" r="13" fill="#2a2e32" stroke="#555" stroke-width="1.5"/>
+    <circle cx="258" cy="442" r="5" fill="#555c64" stroke="#777" stroke-width="1"/>
+    <circle cx="328" cy="442" r="22" fill="#1e2226" stroke="#444" stroke-width="2"/>
+    <circle cx="328" cy="442" r="13" fill="#2a2e32" stroke="#555" stroke-width="1.5"/>
+    <circle cx="328" cy="442" r="5" fill="#555c64" stroke="#777" stroke-width="1"/>
+    <circle cx="293" cy="464" r="14" fill="#1e2226" stroke="#444" stroke-width="1.5"/>
+    <circle cx="293" cy="464" r="7" fill="#252a2e" stroke="#555" stroke-width="1"/>
+    <rect x="246" y="413" width="92" height="7" rx="3" fill="rgba(255,255,255,0.06)"/>
+    <!-- tread connector -->
+    <rect x="104" y="414" width="192" height="26" rx="7" fill="#2e3236" stroke="#444" stroke-width="1.5"/>
+    <!-- BODY base rim -->
+    <rect x="90" y="390" width="220" height="16" rx="5" fill="#545c64" stroke="#333" stroke-width="2"/>
+    <!-- BODY main -->
+    <rect x="94" y="192" width="212" height="206" rx="12" fill="url(#bd-body-g)" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- body left highlight -->
+    <rect x="96" y="196" width="20" height="198" rx="8" fill="rgba(255,255,255,0.055)"/>
+    <!-- vertical ridges -->
+    <line x1="130" y1="194" x2="130" y2="396" stroke="#1a1e22" stroke-width="3"/>
+    <line x1="154" y1="194" x2="154" y2="396" stroke="#161a1e" stroke-width="2.5"/>
+    <line x1="178" y1="194" x2="178" y2="396" stroke="#1a1e22" stroke-width="3"/>
+    <line x1="200" y1="194" x2="200" y2="396" stroke="#161a1e" stroke-width="2.5"/>
+    <line x1="222" y1="194" x2="222" y2="396" stroke="#1a1e22" stroke-width="3"/>
+    <line x1="246" y1="194" x2="246" y2="396" stroke="#161a1e" stroke-width="2.5"/>
+    <line x1="270" y1="194" x2="270" y2="396" stroke="#1a1e22" stroke-width="3"/>
+    <!-- mid band -->
+    <rect x="92" y="302" width="216" height="11" rx="4" fill="#3a4046" stroke="#2a2e32" stroke-width="1.5"/>
+    <rect x="94" y="303" width="212" height="4" rx="2" fill="rgba(255,255,255,0.07)"/>
+    <!-- lower band -->
+    <rect x="92" y="374" width="216" height="13" rx="4" fill="#404850" stroke="#2a2e32" stroke-width="1.5"/>
+    <!-- MOUTH SLOT -->
+    <rect x="140" y="330" width="120" height="34" rx="5" fill="#111418" stroke="#2e3236" stroke-width="2"/>
+    <rect x="144" y="334" width="112" height="24" rx="3" fill="#080c10"/>
+    <rect x="146" y="335" width="45" height="3.5" rx="1.5" fill="rgba(255,255,255,0.05)"/>
+    <!-- texture dents -->
+    <circle cx="112" cy="244" r="2.5" fill="#222630" opacity="0.9"/>
+    <circle cx="118" cy="268" r="2" fill="#222630" opacity="0.7"/>
+    <circle cx="290" cy="224" r="2.5" fill="#222630" opacity="0.9"/>
+    <circle cx="284" cy="258" r="2" fill="#222630" opacity="0.7"/>
+    <circle cx="298" cy="344" r="2" fill="#222630" opacity="0.6"/>
+    <!-- RIGHT EAR BOLT -->
+    <circle cx="316" cy="244" r="15" fill="#3a4046" stroke="#1a1e22" stroke-width="2.5"/>
+    <circle cx="316" cy="244" r="9" fill="#2e3236" stroke="#444" stroke-width="1.5"/>
+    <circle cx="316" cy="244" r="4" fill="#505860" stroke="#666" stroke-width="1"/>
+    <!-- LEFT ARM — upper -->
+    <rect x="34" y="220" width="62" height="21" rx="10" fill="url(#bd-arm-g)" stroke="#1a1e22" stroke-width="2" transform="rotate(-18,65,230)"/>
+    <circle cx="54" cy="250" r="11" fill="#3a4046" stroke="#1e2226" stroke-width="2"/>
+    <circle cx="54" cy="250" r="6" fill="#2e3236" stroke="#444" stroke-width="1.5"/>
+    <!-- forearm -->
+    <rect x="24" y="256" width="52" height="17" rx="8" fill="url(#bd-arm-g)" stroke="#1a1e22" stroke-width="2" transform="rotate(-30,50,265)"/>
+    <circle cx="36" cy="283" r="8" fill="#3a4046" stroke="#1e2226" stroke-width="2"/>
+    <!-- left claw -->
+    <path d="M36 283 Q18 267 16 253" stroke="#252a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M36 283 Q14 283 12 271" stroke="#252a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M36 283 Q18 297 20 310" stroke="#252a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <circle cx="15" cy="252" r="5" fill="#1a1e22" stroke="#333" stroke-width="1.5"/>
+    <circle cx="11" cy="271" r="5" fill="#1a1e22" stroke="#333" stroke-width="1.5"/>
+    <circle cx="19" cy="310" r="5" fill="#1a1e22" stroke="#333" stroke-width="1.5"/>
+    <circle cx="90" cy="230" r="7" fill="#4a5258" stroke="#1e2226" stroke-width="2"/>
+    <circle cx="90" cy="230" r="3.5" fill="#5a6268" stroke="#666" stroke-width="1"/>
+    <!-- RIGHT ARM — upper -->
+    <rect x="304" y="220" width="62" height="21" rx="10" fill="url(#bd-arm-g)" stroke="#1a1e22" stroke-width="2" transform="rotate(14,335,230)"/>
+    <circle cx="348" cy="252" r="11" fill="#3a4046" stroke="#1e2226" stroke-width="2"/>
+    <circle cx="348" cy="252" r="6" fill="#2e3236" stroke="#444" stroke-width="1.5"/>
+    <!-- forearm seg 1 -->
+    <rect x="334" y="258" width="50" height="15" rx="7" fill="url(#bd-arm-g)" stroke="#1a1e22" stroke-width="2" transform="rotate(20,359,265)"/>
+    <!-- forearm seg 2 -->
+    <rect x="346" y="278" width="44" height="13" rx="6" fill="url(#bd-arm-g)" stroke="#1a1e22" stroke-width="2" transform="rotate(15,368,285)"/>
+    <circle cx="366" cy="298" r="8" fill="#3a4046" stroke="#1e2226" stroke-width="2"/>
+    <!-- right claw -->
+    <path d="M366 298 Q384 282 386 268" stroke="#252a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M366 298 Q388 298 390 285" stroke="#252a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M366 298 Q382 312 380 326" stroke="#252a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <circle cx="386" cy="268" r="5" fill="#1a1e22" stroke="#333" stroke-width="1.5"/>
+    <circle cx="390" cy="285" r="5" fill="#1a1e22" stroke="#333" stroke-width="1.5"/>
+    <circle cx="380" cy="326" r="5" fill="#1a1e22" stroke="#333" stroke-width="1.5"/>
+    <circle cx="310" cy="230" r="7" fill="#4a5258" stroke="#1e2226" stroke-width="2"/>
+    <circle cx="310" cy="230" r="3.5" fill="#5a6268" stroke="#666" stroke-width="1"/>
+    <!-- LID RIM (wide flat band) -->
+    <rect x="70" y="172" width="260" height="24" rx="8" fill="url(#bd-lid-edge)" stroke="#2e3236" stroke-width="2.5"/>
+    <rect x="72" y="173" width="256" height="7" rx="3" fill="rgba(255,255,255,0.22)"/>
+    <!-- LID DOME -->
+    <ellipse cx="200" cy="142" rx="144" ry="50" fill="url(#bd-lid-g)" stroke="#2a2a2a" stroke-width="3"/>
+    <!-- dome large specular -->
+    <ellipse cx="168" cy="124" rx="70" ry="20" fill="rgba(255,255,255,0.16)"/>
+    <ellipse cx="152" cy="118" rx="38" ry="9" fill="rgba(255,255,255,0.11)"/>
+    <!-- dome dents -->
+    <circle cx="278" cy="132" r="3" fill="rgba(0,0,0,0.14)"/>
+    <circle cx="266" cy="150" r="2.5" fill="rgba(0,0,0,0.11)"/>
+    <circle cx="238" cy="120" r="2" fill="rgba(0,0,0,0.09)"/>
+    <!-- dome lower curve shadow -->
+    <path d="M72 192 Q200 204 328 192" stroke="rgba(0,0,0,0.18)" stroke-width="2" fill="none"/>
+    <!-- LID HANDLE -->
+    <rect x="180" y="88" width="40" height="13" rx="6" fill="#6a7278" stroke="#2e3236" stroke-width="2"/>
+    <path d="M186 91 Q200 71 214 91" stroke="#7a8288" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M186 91 Q200 73 214 91" stroke="#9aa0a6" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- EYES — left -->
+    <circle cx="158" cy="228" r="34" fill="#1a1e22" stroke="#252a2e" stroke-width="3"/>
+    <circle cx="158" cy="228" r="32" fill="url(#bd-eye-glow)" opacity="0.65"/>
+    <circle cx="158" cy="228" r="27" fill="url(#eye-rg)" id="eye-l"/>
+    <circle cx="158" cy="228" r="27" fill="none" stroke="#500000" stroke-width="2"/>
+    <circle cx="158" cy="228" r="34" fill="none" stroke="#383e44" stroke-width="2" id="eye-ring-l" style="animation:eyeP 2s infinite"/>
+    <ellipse cx="149" cy="218" rx="9" ry="6" fill="rgba(255,180,180,0.5)"/>
+    <circle cx="160" cy="215" r="3.5" fill="rgba(255,220,220,0.38)"/>
+    <!-- EYES — right -->
+    <circle cx="246" cy="228" r="34" fill="#1a1e22" stroke="#252a2e" stroke-width="3"/>
+    <circle cx="246" cy="228" r="32" fill="url(#bd-eye-glow)" opacity="0.65"/>
+    <circle cx="246" cy="228" r="27" fill="url(#eye-rg)" id="eye-r"/>
+    <circle cx="246" cy="228" r="27" fill="none" stroke="#500000" stroke-width="2"/>
+    <circle cx="246" cy="228" r="34" fill="none" stroke="#383e44" stroke-width="2" id="eye-ring-r" style="animation:eyeP 2s infinite"/>
+    <ellipse cx="237" cy="218" rx="9" ry="6" fill="rgba(255,180,180,0.5)"/>
+    <circle cx="248" cy="215" r="3.5" fill="rgba(255,220,220,0.38)"/>
+    <!-- crisp body outline over everything -->
+    <rect x="94" y="192" width="212" height="206" rx="12" fill="none" stroke="#111" stroke-width="2.5"/>
+  </svg>
+</div>
+
+<div id="explosion-layer"></div>
+<div id="overlay" class="hidden"></div>
+</div>
+<script>
+/**
+ * icons.js
+ * 3D vector SVG illustrations for every ingredient.
+ * Each value is an SVG string at 38×38 viewBox.
+ * iconSm(key) returns a 22×22 version for plate chips.
+ */
+
+const ICONS = {
+  flour: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="fi1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f5f0e0"/><stop offset="100%" stop-color="#c8b888"/></linearGradient></defs><ellipse cx="19" cy="30" rx="15" ry="5" fill="rgba(0,0,0,.25)"/><rect x="8" y="8" width="22" height="22" rx="4" fill="url(#fi1)"/><rect x="8" y="8" width="22" height="5" rx="4" fill="#fffef8"/><rect x="10" y="10" width="8" height="3" rx="1" fill="rgba(255,255,255,.7)"/><text x="19" y="23" text-anchor="middle" font-size="7" fill="#8b7040" font-family="sans-serif" font-weight="bold">FLOUR</text></svg>`,
+
+  corn: `<svg viewBox="0 0 72 80" width="52" height="58"><ellipse cx="36" cy="76" rx="16" ry="4" fill="rgba(0,0,0,.2)"/><path d="M36 68 Q22 62 18 44 Q16 30 24 18 Q30 12 36 10 Q42 12 48 18 Q56 30 54 44 Q50 62 36 68Z" fill="#7ab030"/><path d="M36 68 Q50 62 54 44 Q56 30 48 18 Q42 12 36 10" fill="#5a9010"/><rect x="24" y="22" width="24" height="44" rx="12" fill="#e8b830"/><circle cx="29" cy="28" r="3" fill="#f5cc40"/><circle cx="36" cy="26" r="3" fill="#f5cc40"/><circle cx="43" cy="28" r="3" fill="#d4a010"/><circle cx="29" cy="34" r="3" fill="#d4a010"/><circle cx="36" cy="32" r="3" fill="#f5cc40"/><circle cx="43" cy="34" r="3" fill="#f5cc40"/><circle cx="29" cy="40" r="3" fill="#f5cc40"/><circle cx="36" cy="38" r="3" fill="#d4a010"/><circle cx="43" cy="40" r="3" fill="#f5cc40"/><circle cx="29" cy="46" r="3" fill="#d4a010"/><circle cx="36" cy="44" r="3" fill="#f5cc40"/><circle cx="43" cy="46" r="3" fill="#d4a010"/><circle cx="29" cy="52" r="3" fill="#f5cc40"/><circle cx="36" cy="50" r="3" fill="#f5cc40"/><circle cx="43" cy="52" r="3" fill="#d4a010"/><circle cx="29" cy="58" r="3" fill="#d4a010"/><circle cx="36" cy="56" r="3" fill="#f5cc40"/><circle cx="43" cy="58" r="3" fill="#f5cc40"/><path d="M30 22 Q28 10 26 4" stroke="#c8a010" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M36 22 Q36 10 35 3" stroke="#b89010" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M42 22 Q44 10 46 4" stroke="#c8a010" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`,
+
+  crispy: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="cri1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8b050"/><stop offset="100%" stop-color="#a06010"/></linearGradient></defs><ellipse cx="19" cy="32" rx="14" ry="3" fill="rgba(0,0,0,.25)"/><path d="M6 28 Q10 10 19 8 Q28 10 32 28 Q28 32 19 33 Q10 32 6 28Z" fill="url(#cri1)"/><ellipse cx="15" cy="16" rx="5" ry="7" fill="rgba(255,255,255,.18)"/></svg>`,
+
+  chips: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="chi1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#b07820"/></linearGradient></defs><ellipse cx="19" cy="31" rx="13" ry="3" fill="rgba(0,0,0,.25)"/><rect x="7" y="14" width="24" height="16" rx="3" fill="url(#chi1)"/><rect x="7" y="14" width="24" height="5" rx="3" fill="#f8d880"/><rect x="9" y="16" width="8" height="2" rx="1" fill="rgba(255,255,255,.5)"/><rect x="10" y="22" width="18" height="2" rx="1" fill="rgba(180,120,20,.3)"/><rect x="10" y="25" width="14" height="2" rx="1" fill="rgba(180,120,20,.3)"/></svg>`,
+
+  carnitas: `<svg viewBox="0 0 80 80" width="52" height="52"><ellipse cx="36" cy="77" rx="26" ry="4" fill="rgba(0,0,0,.18)"/><ellipse cx="34" cy="50" rx="28" ry="22" fill="#f0a0a0"/><path d="M14 46 Q16 34 22 40 Q24 50 18 54Z" fill="#e08080"/><circle cx="58" cy="36" rx="16" ry="16" fill="#f0a0a0" cx="58" cy="36" r="16"/><ellipse cx="66" cy="42" rx="9" ry="7" fill="#e08080"/><circle cx="63" cy="42" r="2" fill="#b04040"/><circle cx="68" cy="42" r="2" fill="#b04040"/><path d="M46 20 Q42 8 48 10 Q52 12 50 22Z" fill="#e08080"/><path d="M60 18 Q64 6 68 10 Q70 16 64 22Z" fill="#e08080"/><circle cx="54" cy="32" r="4" fill="#1a1a1a"/><circle cx="53" cy="31" r="1.5" fill="white"/><path d="M6 46 Q-2 42 0 32 Q4 24 8 32 Q10 38 6 44" stroke="#e08080" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="14" y="66" width="9" height="12" rx="4" fill="#e08080"/><rect x="26" y="66" width="9" height="12" rx="4" fill="#e08080"/><rect x="38" y="66" width="9" height="12" rx="4" fill="#e08080"/><rect x="50" y="66" width="9" height="12" rx="4" fill="#e08080"/><rect x="14" y="74" width="9" height="6" rx="3" fill="#b06060"/><rect x="26" y="74" width="9" height="6" rx="3" fill="#b06060"/><rect x="38" y="74" width="9" height="6" rx="3" fill="#b06060"/><rect x="50" y="74" width="9" height="6" rx="3" fill="#b06060"/></svg>`,
+
+  pollo: `<svg viewBox="0 0 80 80" width="52" height="52"><ellipse cx="38" cy="76" rx="22" ry="4" fill="rgba(0,0,0,.18)"/><ellipse cx="36" cy="46" rx="24" ry="22" fill="#f0c870"/><path d="M18 42 Q8 36 10 22 Q18 30 22 44Z" fill="#d4a840" opacity=".9"/><circle cx="58" cy="28" r="16" fill="#f0c870"/><path d="M68 24 L78 27 L68 30Z" fill="#e07010"/><path d="M52 12 Q50 4 54 6 Q52 2 56 5 Q54 0 58 5 Q60 8 56 12Z" fill="#cc2020"/><ellipse cx="68" cy="34" rx="4" ry="5" fill="#cc2020"/><circle cx="62" cy="24" r="4" fill="#1a1a1a"/><circle cx="61" cy="23" r="1.5" fill="white"/><line x1="30" y1="66" x2="26" y2="76" stroke="#e07010" stroke-width="3" stroke-linecap="round"/><line x1="42" y1="66" x2="44" y2="76" stroke="#e07010" stroke-width="3" stroke-linecap="round"/><line x1="26" y1="76" x2="18" y2="78" stroke="#e07010" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="76" x2="26" y2="80" stroke="#e07010" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="76" x2="34" y2="79" stroke="#e07010" stroke-width="2.5" stroke-linecap="round"/><line x1="44" y1="76" x2="36" y2="78" stroke="#e07010" stroke-width="2.5" stroke-linecap="round"/><line x1="44" y1="76" x2="44" y2="80" stroke="#e07010" stroke-width="2.5" stroke-linecap="round"/><line x1="44" y1="76" x2="52" y2="79" stroke="#e07010" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+
+  carne: `<svg viewBox="0 0 80 80" width="52" height="52"><ellipse cx="34" cy="77" rx="26" ry="4" fill="rgba(0,0,0,.15)"/><ellipse cx="34" cy="50" rx="28" ry="22" fill="white" stroke="#ddd" stroke-width="1"/><path d="M14 46 Q18 36 28 40 Q30 50 22 54Z" fill="#222"/><path d="M36 44 Q46 38 54 46 Q52 56 44 54Z" fill="#222"/><ellipse cx="28" cy="66" rx="9" ry="6" fill="#f0b0b0"/><ellipse cx="60" cy="38" rx="14" ry="13" fill="white" stroke="#ddd" stroke-width="1"/><path d="M52 28 Q56 18 60 28" fill="#222"/><ellipse cx="68" cy="42" rx="8" ry="6" fill="#f0b0a0"/><circle cx="63" cy="42" r="2" fill="#a04040"/><circle cx="68" cy="42" r="2" fill="#a04040"/><path d="M52 24 Q46 12 48 8" stroke="#c8a060" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M64 22 Q70 10 68 6" stroke="#c8a060" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="46" cy="30" rx="5" ry="8" fill="white" stroke="#ddd" stroke-width="1"/><circle cx="56" cy="34" r="4" fill="#1a1a1a"/><circle cx="55" cy="33" r="1.5" fill="white"/><rect x="12" y="66" width="8" height="14" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/><rect x="23" y="66" width="8" height="14" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/><rect x="36" y="66" width="8" height="14" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/><rect x="47" y="66" width="8" height="14" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/><rect x="12" y="76" width="8" height="6" rx="3" fill="#444"/><rect x="23" y="76" width="8" height="6" rx="3" fill="#444"/><rect x="36" y="76" width="8" height="6" rx="3" fill="#444"/><rect x="47" y="76" width="8" height="6" rx="3" fill="#444"/><path d="M6 50 Q0 42 2 32 Q6 22 8 32" stroke="#aaa" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M8 32 Q6 24 10 20" stroke="#aaa" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`,
+
+  pastor: `<svg viewBox="0 0 72 80" width="52" height="58"><ellipse cx="36" cy="77" rx="18" ry="4" fill="rgba(0,0,0,.18)"/><rect x="33" y="4" width="6" height="70" rx="3" fill="#888"/><rect x="34" y="4" width="3" height="70" rx="1.5" fill="#aaa"/><ellipse cx="36" cy="68" rx="22" ry="6" fill="#b83010"/><ellipse cx="36" cy="62" rx="22" ry="6" fill="#d05020"/><ellipse cx="36" cy="56" rx="20" ry="6" fill="#b83010"/><ellipse cx="36" cy="50" rx="19" ry="5.5" fill="#d05020"/><ellipse cx="36" cy="44" rx="17" ry="5" fill="#a82808"/><ellipse cx="36" cy="38" rx="15" ry="5" fill="#d05020"/><ellipse cx="36" cy="32" rx="13" ry="4.5" fill="#b83010"/><ellipse cx="36" cy="26" rx="11" ry="4" fill="#d05020"/><ellipse cx="36" cy="20" rx="9" ry="4" fill="#a82808"/><path d="M18 64 Q22 62 24 66" stroke="#801808" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M16 54 Q20 52 22 56" stroke="#801808" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M18 44 Q22 42 24 46" stroke="#801808" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M52 60 Q48 58 50 62" stroke="#801808" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M50 50 Q46 48 48 52" stroke="#801808" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="36" cy="14" rx="8" ry="10" fill="#f0c020"/><path d="M31 4 Q29 -2 32 0 Q34 -4 36 0 Q38 -4 40 0 Q43 -2 41 4Z" fill="#38a010"/><path d="M36 74" stroke="#666" stroke-width="2" fill="none"/><path d="M33 74 L39 74 L36 80Z" fill="#666"/></svg>`,
+
+  fish: `<svg viewBox="0 0 72 60" width="52" height="44"><ellipse cx="36" cy="56" rx="24" ry="4" fill="rgba(0,0,0,.18)"/><path d="M62 28 L72 16 L72 40 Z" fill="#4a90c8"/><ellipse cx="36" cy="28" rx="30" ry="18" fill="#5aa8e0"/><ellipse cx="30" cy="33" rx="20" ry="10" fill="#a8d4f0"/><path d="M22 12 Q36 4 50 12" stroke="#2a70a8" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M28 22 Q34 18 40 22" stroke="#3a80b8" stroke-width="1.5" fill="none"/><path d="M22 28 Q28 24 34 28" stroke="#3a80b8" stroke-width="1.5" fill="none"/><path d="M36 28 Q42 24 48 28" stroke="#3a80b8" stroke-width="1.5" fill="none"/><path d="M26 34 Q32 30 38 34" stroke="#3a80b8" stroke-width="1.5" fill="none"/><path d="M24 28 Q16 38 20 44 Q28 36 24 28Z" fill="#3a80b8" opacity=".7"/><circle cx="10" cy="24" r="6" fill="white"/><circle cx="10" cy="24" r="4" fill="#1a3050"/><circle cx="9" cy="23" r="1.5" fill="white"/><path d="M4 29 Q2 32 4 35" stroke="#2a70a8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+
+  veggie: `<svg viewBox="0 0 38 38" width="52" height="52"><ellipse cx="19" cy="32" rx="12" ry="3" fill="rgba(0,0,0,.2)"/><ellipse cx="19" cy="22" rx="11" ry="10" fill="#e8a030"/><path d="M13 14 Q19 8 25 14" stroke="#50a020" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M19 14 L19 8" stroke="#50a020" stroke-width="2" stroke-linecap="round"/></svg>`,
+
+  guac: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><radialGradient id="gu1" cx="40%" cy="35%"><stop offset="0%" stop-color="#7ac040"/><stop offset="100%" stop-color="#3a7010"/></radialGradient></defs><ellipse cx="19" cy="31" rx="13" ry="3" fill="rgba(0,0,0,.25)"/><path d="M8 22 Q8 10 19 7 Q30 10 30 22 Q28 31 19 32 Q10 31 8 22Z" fill="url(#gu1)"/><ellipse cx="14" cy="14" rx="4" ry="5" fill="rgba(180,255,100,.2)"/></svg>`,
+
+  cheese: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="ch1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f8d040"/><stop offset="100%" stop-color="#c89010"/></linearGradient></defs><ellipse cx="19" cy="31" rx="14" ry="3" fill="rgba(0,0,0,.2)"/><path d="M5 27 L5 17 L19 8 L33 17 L33 27 Z" fill="url(#ch1)"/><path d="M5 17 L19 8 L33 17" fill="rgba(255,255,200,.3)"/><circle cx="12" cy="22" r="2.5" fill="rgba(180,120,0,.3)"/><circle cx="22" cy="18" r="2" fill="rgba(180,120,0,.3)"/></svg>`,
+
+  pico: `<svg viewBox="0 0 38 38" width="52" height="52"><ellipse cx="19" cy="31" rx="12" ry="3" fill="rgba(0,0,0,.2)"/><circle cx="19" cy="20" r="13" fill="#e04020"/><ellipse cx="14" cy="15" rx="5" ry="6" fill="rgba(255,150,100,.25)"/><circle cx="13" cy="22" r="2.5" fill="#50aa20" opacity=".9"/><circle cx="22" cy="18" r="2" fill="#50aa20" opacity=".8"/></svg>`,
+
+  lettuce: `<svg viewBox="0 0 72 72" width="52" height="52"><ellipse cx="36" cy="68" rx="18" ry="4" fill="rgba(0,0,0,.15)"/><path d="M36 62 Q8 54 4 30 Q6 8 18 10 Q28 12 36 62Z" fill="#50c030"/><path d="M36 62 Q64 50 66 26 Q64 6 52 8 Q42 10 36 62Z" fill="#3ea020"/><path d="M36 62 Q24 38 20 16" stroke="#2a9010" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M36 62 Q48 40 52 18" stroke="#28900e" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M36 62 Q36 38 36 14" stroke="#38b018" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M28 40 Q22 36 16 30" stroke="#70e050" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/><path d="M32 30 Q26 26 20 20" stroke="#70e050" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/><path d="M40 30 Q46 26 52 20" stroke="#60d040" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/><path d="M40 42 Q46 38 50 32" stroke="#60d040" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7"/><path d="M4 30 Q2 22 4 14 Q7 8 10 14 Q12 6 16 12 Q18 4 22 10" stroke="#70e050" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M66 26 Q68 18 66 12 Q64 6 60 12 Q58 4 54 10 Q52 2 48 8" stroke="#60d040" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+
+  jalap: `<svg viewBox="0 0 38 38" width="52" height="52"><ellipse cx="19" cy="32" rx="10" ry="3" fill="rgba(0,0,0,.2)"/><path d="M15 7 Q12 12 11 20 Q11 30 17 33 Q22 33 24 28 Q26 20 23 12 Q21 7 18 6 Q16 6 15 7Z" fill="#d03020"/><path d="M17 6 Q23 4 24 7" stroke="#50b020" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+
+  cilantro: `<svg viewBox="0 0 38 38" width="52" height="52"><ellipse cx="19" cy="32" rx="12" ry="3" fill="rgba(0,0,0,.15)"/><path d="M19 30 L19 16" stroke="#4a9020" stroke-width="2.5" stroke-linecap="round"/><path d="M19 22 Q12 18 9 12 Q14 13 17 18" stroke="#5ab030" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M19 20 Q26 16 29 10 Q24 11 21 17" stroke="#5ab030" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="9" cy="11" r="4" fill="#60c030" opacity=".9"/><circle cx="29" cy="10" r="3.5" fill="#60c030" opacity=".9"/><circle cx="19" cy="8" r="3.5" fill="#70d040" opacity=".8"/></svg>`,
+
+  onion: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><radialGradient id="on1" cx="40%" cy="35%"><stop offset="0%" stop-color="#e8c8f0"/><stop offset="100%" stop-color="#a060b0"/></radialGradient></defs><ellipse cx="19" cy="31" rx="13" ry="3" fill="rgba(0,0,0,.2)"/><path d="M8 22 Q8 10 19 7 Q30 10 30 22 Q28 31 19 32 Q10 31 8 22Z" fill="url(#on1)"/></svg>`,
+
+  lime: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><radialGradient id="li1" cx="40%" cy="35%"><stop offset="0%" stop-color="#d0f060"/><stop offset="100%" stop-color="#60a010"/></radialGradient></defs><ellipse cx="19" cy="31" rx="13" ry="3" fill="rgba(0,0,0,.2)"/><circle cx="19" cy="20" r="13" fill="url(#li1)"/><ellipse cx="14" cy="15" rx="5" ry="6" fill="rgba(255,255,200,.25)"/></svg>`,
+
+  green_salsa: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="gs1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6ad040"/><stop offset="100%" stop-color="#2a8010"/></linearGradient></defs><ellipse cx="19" cy="31" rx="10" ry="3" fill="rgba(0,0,0,.25)"/><rect x="12" y="10" width="14" height="20" rx="5" fill="url(#gs1)"/><ellipse cx="19" cy="11" rx="7" ry="3" fill="#88e060"/><rect x="14" y="12" width="4" height="8" rx="2" fill="rgba(255,255,255,.2)"/><text x="19" y="26" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.8)" font-family="sans-serif" font-weight="bold">VERDE</text></svg>`,
+
+  red_salsa: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="rs1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f04020"/><stop offset="100%" stop-color="#901010"/></linearGradient></defs><ellipse cx="19" cy="31" rx="10" ry="3" fill="rgba(0,0,0,.25)"/><rect x="12" y="10" width="14" height="20" rx="5" fill="url(#rs1)"/><ellipse cx="19" cy="11" rx="7" ry="3" fill="#f86040"/><rect x="14" y="12" width="4" height="8" rx="2" fill="rgba(255,255,255,.2)"/><text x="19" y="26" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.8)" font-family="sans-serif" font-weight="bold">ROJA</text></svg>`,
+
+  crema: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="cre1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fffef0"/><stop offset="100%" stop-color="#e0d0a0"/></linearGradient></defs><ellipse cx="19" cy="31" rx="10" ry="3" fill="rgba(0,0,0,.2)"/><rect x="12" y="10" width="14" height="20" rx="5" fill="url(#cre1)" stroke="#c8b070" stroke-width="1"/><ellipse cx="19" cy="11" rx="7" ry="3" fill="#fffef8"/><text x="19" y="26" text-anchor="middle" font-size="5" fill="#8b6030" font-family="sans-serif" font-weight="bold">CREMA</text></svg>`,
+
+  hot: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="hot1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff6010"/><stop offset="100%" stop-color="#cc2000"/></linearGradient></defs><ellipse cx="19" cy="31" rx="10" ry="3" fill="rgba(0,0,0,.25)"/><rect x="12" y="10" width="14" height="20" rx="5" fill="url(#hot1)"/><ellipse cx="19" cy="11" rx="7" ry="3" fill="#ff8040"/><text x="19" y="26" text-anchor="middle" font-size="5.5" fill="rgba(255,255,200,.9)" font-family="sans-serif" font-weight="bold">HOT</text><path d="M16 7 Q17 4 19 5 Q20 3 21 5" stroke="#ffaa00" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>`,
+
+  chipotle: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="chip1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b4010"/><stop offset="100%" stop-color="#4a1a00"/></linearGradient></defs><ellipse cx="19" cy="31" rx="10" ry="3" fill="rgba(0,0,0,.25)"/><rect x="12" y="10" width="14" height="20" rx="5" fill="url(#chip1)"/><ellipse cx="19" cy="11" rx="7" ry="3" fill="#a85020"/><text x="19" y="25" text-anchor="middle" font-size="4.5" fill="rgba(255,200,150,.85)" font-family="sans-serif" font-weight="bold">CHIPT</text></svg>`,
+
+  rice: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="ri1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fffef0"/><stop offset="100%" stop-color="#e0d8b0"/></linearGradient></defs><ellipse cx="19" cy="32" rx="13" ry="4" fill="rgba(0,0,0,.2)"/><path d="M7 24 Q7 16 19 14 Q31 16 31 24 Q29 32 19 33 Q9 32 7 24Z" fill="url(#ri1)"/><ellipse cx="13" cy="20" rx="5" ry="4" fill="rgba(255,255,255,.4)"/><ellipse cx="12" cy="21" rx="1.2" ry="1.8" fill="rgba(220,210,170,.9)"/><ellipse cx="16" cy="19" rx="1.2" ry="1.8" fill="rgba(220,210,170,.9)"/><ellipse cx="20" cy="21" rx="1.2" ry="1.8" fill="rgba(220,210,170,.9)"/><ellipse cx="24" cy="20" rx="1.2" ry="1.8" fill="rgba(220,210,170,.9)"/><ellipse cx="22" cy="24" rx="1.2" ry="1.8" fill="rgba(200,195,150,.8)"/><ellipse cx="18" cy="25" rx="1.2" ry="1.8" fill="rgba(200,195,150,.8)"/></svg>`,
+
+  beans: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><radialGradient id="be1" cx="40%" cy="35%"><stop offset="0%" stop-color="#8b5030"/><stop offset="100%" stop-color="#4a2010"/></radialGradient></defs><ellipse cx="19" cy="32" rx="13" ry="3" fill="rgba(0,0,0,.25)"/><path d="M7 23 Q7 14 19 12 Q31 14 31 23 Q29 31 19 32 Q9 31 7 23Z" fill="url(#be1)"/><ellipse cx="14" cy="24" rx="3" ry="2" fill="#603010" opacity=".6"/><ellipse cx="21" cy="22" rx="3" ry="2" fill="#603010" opacity=".6"/></svg>`,
+
+  sc: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><radialGradient id="sc1" cx="40%" cy="30%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#d8d0c0"/></radialGradient></defs><ellipse cx="19" cy="32" rx="13" ry="3" fill="rgba(0,0,0,.2)"/><path d="M7 24 Q7 14 19 12 Q31 14 31 24 Q29 32 19 33 Q9 32 7 24Z" fill="url(#sc1)"/><ellipse cx="14" cy="18" rx="6" ry="5" fill="rgba(255,255,255,.6)"/></svg>`,
+
+  corn_extra: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="ce1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f8d840"/><stop offset="100%" stop-color="#c09010"/></linearGradient></defs><ellipse cx="19" cy="32" rx="12" ry="3" fill="rgba(0,0,0,.2)"/><ellipse cx="19" cy="21" rx="10" ry="13" fill="url(#ce1)"/><circle cx="16" cy="18" r="1.8" fill="rgba(200,160,10,.6)"/><circle cx="20" cy="16" r="1.8" fill="rgba(200,160,10,.6)"/><circle cx="22" cy="21" r="1.8" fill="rgba(200,160,10,.6)"/><path d="M13 8 Q19 4 25 8" stroke="#88b030" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+
+  pickled_carrots: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><linearGradient id="jar-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8f4d8"/><stop offset="100%" stop-color="#c0dca0"/></linearGradient></defs><ellipse cx="19" cy="33" rx="11" ry="3" fill="rgba(0,0,0,.2)"/><rect x="10" y="10" width="18" height="22" rx="3" fill="url(#jar-g)" stroke="#7a9a50" stroke-width="1.5"/><rect x="10" y="10" width="18" height="5" rx="3" fill="rgba(255,255,255,.5)"/><rect x="9" y="8" width="20" height="5" rx="2.5" fill="#8aaa60" stroke="#6a8a40" stroke-width="1"/><path d="M13 16 Q15 13 17 16 Q19 19 21 16 Q23 13 25 16" stroke="#e07020" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M13 20 Q15 17 17 20 Q19 23 21 20 Q23 17 25 20" stroke="#e07020" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M13 24 Q15 21 17 24 Q19 27 21 24 Q23 21 25 24" stroke="#e07020" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+
+  mango: `<svg viewBox="0 0 38 38" width="52" height="52"><defs><radialGradient id="mango-g" cx="38%" cy="32%"><stop offset="0%" stop-color="#ffee55"/><stop offset="40%" stop-color="#ffaa00"/><stop offset="100%" stop-color="#e06000"/></radialGradient></defs><ellipse cx="19" cy="33" rx="13" ry="3" fill="rgba(0,0,0,.2)"/><path d="M19 5 Q30 8 32 20 Q33 30 24 34 Q19 36 14 34 Q5 30 6 20 Q8 8 19 5Z" fill="url(#mango-g)"/><ellipse cx="14" cy="13" rx="6" ry="8" fill="rgba(255,255,200,.25)"/><path d="M19 5 Q17 2 19 1 Q21 2 19 5Z" fill="#5a8030"/><path d="M19 5 Q16 3 15 1" stroke="#5a8030" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M19 5 Q22 3 23 1" stroke="#5a8030" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`,
+
+};
+
+/**
+ * Returns a 22×22 version of an icon for use in plate chips.
+ * @param {string} key - ingredient id / svgKey
+ * @returns {string} SVG markup
+ */
+function iconSm(key) {
+  const s = ICONS[key];
+  if (!s) return '';
+  return s.replace('width="52" height="52"','width="24" height="24"').replace('width="52" height="58"','width="24" height="27"').replace('width="52" height="44"','width="24" height="20"');
+}
+/**
+ * data.js
+ * All static game data: menu items, ingredient shelves,
+ * addon pool, customers, and Bin Diesel dialogue.
+ *
+ * extraRequired[] — ingredient IDs that MUST be on the plate
+ * regardless of addons (e.g. Rice Bowl requires 'rice',
+ * Nachos require 'chips').
+ */
+
+const MAINS = [
+  { id: 'taco',       name: 'Taco',        svgKey: 'corn',  price: 3.50, time: 32, needsBase: true,  needsProtein: true,  extraRequired: [] },
+  { id: 'burrito',    name: 'Burrito',      svgKey: 'flour', price: 7.00, time: 46, needsBase: true,  needsProtein: true,  extraRequired: [] },
+  { id: 'quesadilla', name: 'Quesadilla',   svgKey: 'flour', price: 5.50, time: 38, needsBase: true,  needsProtein: true,  extraRequired: [] },
+  { id: 'bowl',       name: 'Rice Bowl',    svgKey: 'rice',  price: 6.00, time: 38, needsBase: false, needsProtein: true,  extraRequired: ['rice'] },
+  { id: 'nachos',     name: 'Nachos',       svgKey: 'chips', price: 6.50, time: 34, needsBase: false, needsProtein: true,  extraRequired: ['chips'] },
+  { id: 'torta',      name: 'Torta',        svgKey: 'flour', price: 7.50, time: 48, needsBase: true,  needsProtein: true,  extraRequired: [] },
+];
+
+const SHELVES = [
+  {
+    title: 'BASE / WRAP',
+    items: [
+      { id: 'flour',  name: 'Flour Tortilla', svgKey: 'flour'  },
+      { id: 'corn',   name: 'Corn Tortilla',  svgKey: 'corn'   },
+      { id: 'crispy', name: 'Crispy Shell',   svgKey: 'crispy' },
+      { id: 'chips',  name: 'Chips',          svgKey: 'chips'  },
+      { id: 'rice',   name: 'Rice',           svgKey: 'rice'   },
+    ],
+  },
+  {
+    title: 'PROTEIN',
+    items: [
+      { id: 'carnitas', name: 'Carnitas',   svgKey: 'carnitas' },
+      { id: 'pollo',    name: 'Pollo',      svgKey: 'pollo'    },
+      { id: 'carne',    name: 'Carne',      svgKey: 'carne'    },
+      { id: 'pastor',   name: 'Al Pastor',  svgKey: 'pastor'   },
+      { id: 'fish',     name: 'Fish',       svgKey: 'fish'     },
+      { id: 'veggie',   name: 'Veggie',     svgKey: 'veggie'   },
+    ],
+  },
+  {
+    title: 'TOPPINGS',
+    items: [
+      { id: 'guac',     name: 'Guac',      svgKey: 'guac'     },
+      { id: 'cheese',   name: 'Cheese',    svgKey: 'cheese'   },
+      { id: 'pico',     name: 'Pico',      svgKey: 'pico'     },
+      { id: 'lettuce',  name: 'Lettuce',   svgKey: 'lettuce'  },
+      { id: 'onion',    name: 'Onion',     svgKey: 'onion'    },
+      { id: 'lime',     name: 'Lime',      svgKey: 'lime'     },
+      { id: 'cilantro', name: 'Cilantro',  svgKey: 'cilantro' },
+    ],
+  },
+  {
+    title: 'SAUCE',
+    items: [
+      { id: 'green_salsa', name: 'Green Salsa', svgKey: 'green_salsa' },
+      { id: 'red_salsa',   name: 'Red Salsa',   svgKey: 'red_salsa'   },
+      { id: 'crema',       name: 'Crema',       svgKey: 'crema'       },
+      { id: 'hot',         name: 'Hot Sauce',   svgKey: 'hot'         },
+      { id: 'chipotle',    name: 'Chipotle',    svgKey: 'chipotle'    },
+    ],
+  },
+  {
+    title: 'EXTRAS',
+    items: [
+      { id: 'jalap',          name: 'Jalapeños',      svgKey: 'jalap'          },
+      { id: 'beans',          name: 'Beans',          svgKey: 'beans'          },
+      { id: 'sc',             name: 'Sour Cream',     svgKey: 'sc'             },
+      { id: 'corn_extra',     name: 'Corn',           svgKey: 'corn_extra'     },
+      { id: 'pickled_carrots',name: 'Pickled Carrots',svgKey: 'pickled_carrots'},
+      { id: 'mango',          name: 'Mango',          svgKey: 'mango'          },
+    ],
+  },
+];
+
+/** Flat lookup used by itemById() */
+const ALL_ITEMS = SHELVES.flatMap(s => s.items);
+
+/**
+ * Pool of random add-ons generated per order.
+ * 'rice' excluded so Rice Bowl doesn't double-add it.
+ */
+const ADDON_POOL = [
+  { id: 'guac',     price: 1.50 },
+  { id: 'cheese',   price: 0.75 },
+  { id: 'pico',     price: 0.50 },
+  { id: 'sc',       price: 0.75 },
+  { id: 'beans',    price: 1.00 },
+  { id: 'lettuce',  price: 0.25 },
+  { id: 'cilantro', price: 0.25 },
+  { id: 'onion',    price: 0.25 },
+  { id: 'lime',     price: 0.25 },
+  { id: 'hot',      price: 0.50 },
+  { id: 'jalap',          price: 0.50 },
+  { id: 'pickled_carrots',price: 0.75 },
+  { id: 'mango',          price: 0.75 },
+];
+
+// Flat price map for every ingredient (used for freebie penalty)
+const INGREDIENT_PRICES = {
+  guac:1.50, cheese:0.75, pico:0.50, jalap:0.50, sc:0.75,
+  beans:1.00, lettuce:0.25, cilantro:0.25, onion:0.25, lime:0.25,
+  hot:0.50, rice:1.00, corn_extra:0.50, green_salsa:0.50,
+  red_salsa:0.50, crema:0.75, chipotle:0.50,
+  flour:0.25, corn:0.25, crispy:0.25, chips:0.25,
+  pickled_carrots:0.75, mango:0.75,
+  carnitas:1.00, pollo:0.75, carne:1.00, pastor:1.00, fish:1.25, veggie:0.75,
+};
+
+const CUSTOMERS = [
+  { name: 'Carlos',    say: 'Yo hook me up with' },
+  { name: 'Maria',     say: 'Hurry up, I need'   },
+  { name: 'Big Steve', say: 'Sup, lemme get'      },
+  { name: "Lil' Tiff", say: 'OMG I want'          },
+  { name: 'Ruiz',      say: "I'll have"           },
+  { name: 'Darnell',   say: 'Bro I need'          },
+];
+
+const BD_LINES = {
+  start:   ['BZZZT. New order!', "BEEP. Ready!", "VROOM. Let's go!"],
+  cooking: ['BZZZT. Keep going!', 'WHIRR. More!', 'BEEP BOOP. Almost!'],
+  done:    ['DING! Order up!', 'BEEP! Serve it!', 'Looking good!'],
+  late:    ['ERR ERR. Hurry!!', 'BZZT! TOO SLOW!', 'RED ALERT!'],
+  win:     ['BOING! Cash!', 'DING! Full price!', 'NICE WORK!'],
+  freebie: ['NO FREEBIES!!', 'BZZZT. Pay up!', 'Nothing is free!!'],
+  lose:    ['ERR. Comped...', 'BZZZT. Free food.', 'System fail.'],
+};
+
+const BD_QUOTES = [
+  '"I live my life a taco at a time."',
+  '"Nobody out-serves me. Nobody."',
+  '"The burrito... chose me."',
+  '"Family. And fresh cilantro."',
+  '"You can\'t stop the can."',
+];
+/**
+ * game.js
+ * Core game logic for Bin Diesel's Taqueria.
+ * Depends on: icons.js, data.js (loaded before this file).
+ */
+
+// ─── STATE ──────────────────────────────────────────────────────
+const G = {
+  money:        0,
+  orderNum:     0,
+  highScore:    0,
+  currentOrder: null,
+  plateIds:     [],   // ingredient IDs currently on the plate
+  needed:       [],   // ingredient IDs required for this order
+  timerInt:     null,
+  timeLeft:     0,    // counts DOWN; goes negative when overtime
+  baseTime:     0,
+  phase:        'title',
+  dragId:       null,
+};
+
+// ─── UTILS ──────────────────────────────────────────────────────
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function itemById(id) { return ALL_ITEMS.find(x => x.id === id); }
+
+/**
+ * Safe money formatter — never displays NaN.
+ * @param {number} n
+ * @returns {string} e.g. "4.75"
+ */
+function money(n) {
+  const v = parseFloat(n);
+  return isNaN(v) ? '0.00' : Math.max(0, v).toFixed(2);
+}
+
+// ─── PAYOUT ─────────────────────────────────────────────────────
+/**
+ * Calculate how much the player earns for the current order.
+ *
+ * timeLeft > 10 → full price (countdown not yet active)
+ * 0 ≤ timeLeft ≤ 10 → linearly drains from full price → $0
+ * timeLeft < 0  → $0 (auto-explode handles this)
+ */
+function computePayout() {
+  const o = G.currentOrder;
+  if (!o) return 0;
+  const total = parseFloat(o.totalPrice);
+  // Full price while more than 10 seconds remain
+  if (G.timeLeft > 10) return total;
+  // Below 10s: linearly drain from full price to $0 over those 10 seconds
+  // timeLeft=10 -> full price, timeLeft=0 -> $0, timeLeft<0 -> $0
+  const t = Math.max(0, G.timeLeft);
+  return parseFloat(((t / 10) * total).toFixed(2));
+}
+
+// ─── BIN DIESEL ─────────────────────────────────────────────────
+let bdSayTimer = null;
+
+function bdSay(key, ms = 2200) {
+  const bub = document.getElementById('bd-bubble');
+  bub.textContent = rand(BD_LINES[key] || BD_LINES.start);
+  bub.style.display = 'block';
+  clearTimeout(bdSayTimer);
+  bdSayTimer = setTimeout(() => { bub.style.display = 'none'; }, ms);
+}
+
+function bdAnim(type) {
+  const svg = document.getElementById('bd-svg');
+  const el  = document.getElementById('eye-l');
+  const er  = document.getElementById('eye-r');
+  const rl  = document.getElementById('eye-ring-l');
+  const rr  = document.getElementById('eye-ring-r');
+
+  svg.style.animation = 'none';
+  void svg.offsetWidth; // force reflow to restart animation
+
+  if (type === 'happy') {
+    el.setAttribute('fill', '#00cc55');
+    er.setAttribute('fill', '#00cc55');
+    rl.setAttribute('stroke', 'rgba(0,200,80,.35)');
+    rr.setAttribute('stroke', 'rgba(0,200,80,.35)');
+    svg.style.animation = 'bdHappy .4s ease-in-out 4, bdIdle 2.5s ease-in-out infinite 1.6s';
+  } else if (type === 'angry') {
+    el.setAttribute('fill', '#ff1111');
+    er.setAttribute('fill', '#ff1111');
+    rl.setAttribute('stroke', 'rgba(255,0,0,.5)');
+    rr.setAttribute('stroke', 'rgba(255,0,0,.5)');
+    svg.style.animation = 'bdAngry .15s ease-in-out 6, bdIdle 2.5s ease-in-out infinite 0.9s';
+  } else {
+    el.setAttribute('fill', 'url(#eye-rg)');
+    er.setAttribute('fill', 'url(#eye-rg)');
+    rl.setAttribute('stroke', 'rgba(200,0,0,.3)');
+    rr.setAttribute('stroke', 'rgba(200,0,0,.3)');
+    svg.style.animation = 'bdIdle 2.5s ease-in-out infinite';
+  }
+}
+
+// ─── OVERLAY ────────────────────────────────────────────────────
+function showOverlay(html) {
+  const ov = document.getElementById('overlay');
+  ov.innerHTML = html;
+  ov.classList.remove('hidden');
+}
+
+function hideOverlay() {
+  const ov = document.getElementById('overlay');
+  ov.classList.add('hidden');
+  ov.innerHTML = '';
+}
+
+// ─── TITLE SCREEN ───────────────────────────────────────────────
+function showTitle() {
+  G.phase = 'title';
+  document.getElementById('topbar').style.display = 'none';
+  showOverlay(`
+    <div class="ov-big">BIN DIESEL'S</div>
+    <div class="ov-sub" style="font-family:'Permanent Marker',cursive;color:#f5c842;font-size:22px;">TAQUERIA</div>
+    <div style="font-size:14px;color:#f5c842;line-height:2;margin:14px 0;font-family:'VT323',monospace;">
+      Read the order on the REGISTER<br>
+      DRAG or CLICK ingredients onto the PLATE<br>
+      Beat the clock — every late second costs you!
+    </div>
+    <button class="ov-btn" onclick="startGame()">START SHIFT</button>
+  `);
+}
+
+// ─── GAME FLOW ──────────────────────────────────────────────────
+function startGame() {
+  G.money    = 0;
+  G.orderNum = 0;
+  hideOverlay();
+  document.getElementById('topbar').style.display = 'flex';
+  beginOrder();
+}
+
+function genOrder() {
+  // Difficulty escalates quickly:
+  //   order 1:    taco only, 1 addon
+  //   orders 2-3: simple mains, 1-2 addons, single main
+  //   orders 4-5: any main, 2-3 addons, chance of combo order
+  //   orders 6-9: complex mains weighted, 3-4 addons, combo more likely
+  //   orders 10+: hardest mains, 4-5 addons, combo orders common
+  const n = G.orderNum;
+
+  // Addon count ramps fast
+  let minAdd, maxAdd;
+  if      (n === 1) { minAdd = 1; maxAdd = 1; }
+  else if (n <= 3)  { minAdd = 1; maxAdd = 2; }
+  else if (n <= 5)  { minAdd = 2; maxAdd = 3; }
+  else if (n <= 9)  { minAdd = 3; maxAdd = 4; }
+  else              { minAdd = 4; maxAdd = 5; }
+  const numAddons = minAdd + Math.floor(Math.random() * (maxAdd - minAdd + 1));
+
+  // Main item pool — harder items appear sooner
+  let mainPool;
+  if      (n === 1) mainPool = MAINS.filter(m => m.id === 'taco');
+  else if (n <= 3)  mainPool = MAINS.filter(m => ['taco','bowl','nachos'].includes(m.id));
+  else if (n <= 5)  mainPool = MAINS;
+  else              mainPool = [...MAINS, ...MAINS.filter(m => m.price >= 6.00)]; // weight harder
+  const main = rand(mainPool);
+
+  const proteinItems = SHELVES.find(s => s.title === 'PROTEIN').items;
+  const baseItems    = SHELVES.find(s => s.title === 'BASE / WRAP').items;
+  const protein      = rand(proteinItems);
+  const base         = main.needsBase ? rand(baseItems) : null;
+
+  // Combo order: a second main item added to the order from order 4 onward
+  // Probability: 0% orders 1-3, 30% orders 4-5, 50% orders 6-9, 70% orders 10+
+  let comboChance = n <= 3 ? 0 : n <= 5 ? 0.3 : n <= 9 ? 0.5 : 0.7;
+  let secondMain = null;
+  let secondBase = null;
+  if (Math.random() < comboChance) {
+    const comboPool = MAINS.filter(m => m.id !== main.id || main.id === 'taco' || main.id === 'burrito');
+    secondMain = rand(comboPool);
+    secondBase = secondMain.needsBase ? rand(baseItems) : null;
+  }
+
+  const lockedIds = new Set(
+    [protein.id, base ? base.id : null,
+     ...(main.extraRequired || []),
+     ...(secondMain ? (secondMain.extraRequired || []) : []),
+     secondBase ? secondBase.id : null
+    ].filter(Boolean)
+  );
+  const avail  = ADDON_POOL.filter(a => !lockedIds.has(a.id));
+  const shuffled = [...avail].sort(() => Math.random() - 0.5);
+  const addons = shuffled.slice(0, Math.min(numAddons, shuffled.length));
+
+  const customer   = rand(CUSTOMERS);
+  const addonPrice = addons.reduce((a, x) => a + x.price, 0);
+  const comboPrice = secondMain ? secondMain.price : 0;
+  const totalPrice = parseFloat((main.price + comboPrice + addonPrice).toFixed(2));
+
+  // Timer tightens as orders progress
+  const timeLimit = n >= 30 ? 15 : n >= 20 ? 20 : n >= 10 ? 25 : 30;
+
+  return { main, protein, base, addons, customer, totalPrice, timeLimit, secondMain, secondBase };
+}
+
+function beginOrder() {
+  const o = genOrder();
+  G.currentOrder = o;
+  G.orderNum++;
+  G.plateIds = [];
+  G.needed   = [];
+
+  // Build required ingredient list
+  if (o.base) G.needed.push(o.base.id);
+  G.needed.push(o.protein.id);
+  (o.main.extraRequired || []).forEach(id => { if (!G.needed.includes(id)) G.needed.push(id); });
+  // Combo second main
+  if (o.secondMain) {
+    if (o.secondBase && !G.needed.includes(o.secondBase.id)) G.needed.push(o.secondBase.id);
+    (o.secondMain.extraRequired || []).forEach(id => { if (!G.needed.includes(id)) G.needed.push(id); });
+  }
+  o.addons.forEach(a => { if (!G.needed.includes(a.id)) G.needed.push(a.id); });
+
+  G.phase = 'kitchen';
+  document.getElementById('app').classList.remove('show-hints');
+
+  updateHUD();
+  renderReceipt();
+  renderShelves();
+  renderPlate();
+
+  document.getElementById('kitchen-header').textContent = 'KITCHEN — click or drag ingredients onto the plate';
+  document.getElementById('btn-serve').disabled      = true;
+  document.getElementById('reg-screen-txt').textContent = '$' + money(o.totalPrice);
+  // Kitchen is open immediately — no confirm step
+
+  startTimer(o.timeLimit);
+  startMusic();
+  bdSay('start');
+  bdAnim('idle');
+}
+
+// ─── REGISTER ───────────────────────────────────────────────────
+function renderReceipt() {
+  const o = G.currentOrder;
+  document.getElementById('rct-cust').textContent = `${o.customer.name}: ${o.customer.say}...`;
+
+  let html = `<div class="rct-row main-item">${o.main.name} — $${money(o.main.price)}</div>`;
+  if (o.base) html += `<div class="rct-row">&nbsp;• ${o.base.name}</div>`;
+  html += `<div class="rct-row">&nbsp;• ${o.protein.name}</div>`;
+
+  (o.main.extraRequired || []).forEach(id => {
+    const it = itemById(id);
+    if (it) html += `<div class="rct-row">&nbsp;• ${it.name}</div>`;
+  });
+  if (o.secondMain) {
+    html += `<div class="rct-row main-item" style="margin-top:3px;border-top:1px dashed #c8860a;padding-top:3px;">+ ${o.secondMain.name} — $${money(o.secondMain.price)}</div>`;
+    if (o.secondBase) html += `<div class="rct-row">&nbsp;• ${o.secondBase.name}</div>`;
+    (o.secondMain.extraRequired || []).forEach(id => {
+      const it = itemById(id);
+      if (it) html += `<div class="rct-row">&nbsp;• ${it.name}</div>`;
+    });
+  }
+  o.addons.forEach(a => {
+    const it = itemById(a.id);
+    if (it) html += `<div class="rct-row">&nbsp;+ ${it.name} <span style="color:#8b4000;">+$${money(a.price)}</span></div>`;
+  });
+
+  document.getElementById('rct-items').innerHTML = html;
+  document.getElementById('rct-total').textContent = 'TOTAL: $' + money(o.totalPrice);
+}
+
+// ─── SHELVES ────────────────────────────────────────────────────
+function renderShelves() {
+  const container = document.getElementById('shelves');
+
+  container.innerHTML = SHELVES.map(shelf => `
+    <div class="shelf">
+      <div class="shelf-title">${shelf.title}</div>
+      <div class="shelf-items">
+        ${shelf.items.map(item => `
+          <div class="ing-card" id="ic-${item.id}" data-id="${item.id}" draggable="true">
+            ${ICONS[item.svgKey] || ''}
+            <span class="ic-name">${item.name}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // Attach events once — shelves are only re-rendered at the start of each order
+  container.querySelectorAll('.ing-card').forEach(card => {
+    const id = card.dataset.id;
+
+    card.addEventListener('dragstart', e => {
+      if (G.plateIds.includes(id)) { e.preventDefault(); return; }
+      G.dragId = id;
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('text/plain', id);
+      card.style.opacity = '.4';
+    });
+
+    card.addEventListener('dragend', () => {
+      card.style.opacity = '';
+      G.dragId = null;
+    });
+
+    card.addEventListener('click', () => {
+      if (G.phase !== 'kitchen') return;
+      addToPlate(id);
+    });
+    card.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      if (G.phase !== 'kitchen') return;
+      addToPlate(id);
+    }, {passive:false});
+  });
+
+  refreshShelfClasses();
+}
+
+/** Update .needed / .done classes without rebuilding DOM or losing listeners */
+function refreshShelfClasses() {
+  ALL_ITEMS.forEach(item => {
+    const card = document.getElementById('ic-' + item.id);
+    if (!card) return;
+    const isNeeded  = G.needed.includes(item.id);
+    const isOnPlate = G.plateIds.includes(item.id);
+    card.classList.toggle('needed', isNeeded && !isOnPlate);
+    card.classList.toggle('done',   isOnPlate);
+    card.draggable    = !isOnPlate;
+    card.style.cursor = isOnPlate ? 'default' : 'grab';
+  });
+}
+
+// ─── PLATE DROP ZONE (set up once) ──────────────────────────────
+(function setupTrayDrop() {
+  const plate = document.getElementById('the-plate');
+
+  plate.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    document.getElementById('plate-svg').style.filter = 'drop-shadow(0 0 8px rgba(68,221,119,.8))';
+  });
+
+  plate.addEventListener('dragleave', e => {
+    if (!plate.contains(e.relatedTarget))
+      document.getElementById('plate-svg').style.filter = '';
+  });
+
+  plate.addEventListener('drop', e => {
+    e.preventDefault();
+    document.getElementById('plate-svg').style.filter = '';
+    const id = e.dataTransfer.getData('text/plain') || G.dragId;
+    if (id) addToPlate(id);
+    G.dragId = null;
+  });
+})();
+
+function renderPlate() {
+  const area = document.getElementById('plate-items');
+  const hint = document.getElementById('plate-drop-hint');
+  const prog = document.getElementById('build-progress');
+
+  if (G.plateIds.length === 0) {
+    area.innerHTML   = '';
+    hint.textContent = G.phase === 'kitchen' ? 'Drop here' : '';
+    prog.textContent = '';
+    document.getElementById('btn-serve').disabled = true;
+    return;
+  }
+
+  hint.textContent = '';
+  area.innerHTML = G.plateIds.map(id => {
+    const item = itemById(id);
+    if (!item) return '';
+    return `<span class="plate-chip" title="Remove ${item.name}" onclick="removeFromPlate('${id}')">
+      ${iconSm(item.svgKey || item.id)}
+      <span>${item.name}</span>
+    </span>`;
+  }).join('');
+
+  const matched  = G.needed.filter(nid => G.plateIds.includes(nid));
+  prog.textContent = `${matched.length} / ${G.needed.length} items`;
+  prog.style.color = matched.length === G.needed.length ? '#44dd77' : '#f5c842';
+
+  const complete = matched.length === G.needed.length;
+  document.getElementById('btn-serve').disabled = !complete || G.phase !== 'kitchen';
+
+  if (complete) { bdSay('done'); bdAnim('happy'); }
+}
+
+function addToPlate(id) {
+  if (!id || G.phase !== 'kitchen' || G.plateIds.includes(id)) return;
+  const item = itemById(id);
+  if (!item) return;
+  G.plateIds.push(id);
+  renderPlate();
+  refreshShelfClasses();
+  if (G.needed.includes(id)) bdSay('cooking');
+}
+
+function removeFromPlate(id) {
+  G.plateIds = G.plateIds.filter(x => x !== id);
+  renderPlate();
+  refreshShelfClasses();
+}
+
+// ─── TIMER ──────────────────────────────────────────────────────
+function startTimer(secs) {
+  clearInterval(G.timerInt);
+  G.timeLeft = secs;
+  G.baseTime = secs;
+  updateTimerUI();
+
+  G.timerInt = setInterval(() => {
+    G.timeLeft--;
+    updateTimerUI();
+    if (G.timeLeft <= 10) document.getElementById('app').classList.add('show-hints');
+    if (G.timeLeft <= 5 && G.timeLeft > 0) { bdSay('late'); bdAnim('angry'); }
+    if (G.timeLeft <= 0) {
+      clearInterval(G.timerInt);
+      stopMusic();
+      G.phase = 'exploding';
+      triggerExplosion(() => {
+        document.getElementById('bd-svg').style.opacity = '1';
+        showResult(0, 0, 0);
+      });
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const t   = Math.max(0, G.timeLeft);
+  const pct = Math.max(0, t / G.baseTime * 100);
+
+  document.getElementById('tb-time').textContent = t + 's';
+  const fill = document.getElementById('timer-inner');
+  fill.style.width      = pct + '%';
+  fill.style.background = pct > 50 ? '#44cc66' : pct > 25 ? '#f5c842' : '#ff4444';
+  document.getElementById('tb-pay').textContent = '$' + money(computePayout());
+}
+
+function updateHUD() {
+  document.getElementById('tb-money').textContent = money(G.money);
+  document.getElementById('tb-order').textContent = G.orderNum;
+}
+
+// ─── SERVE ──────────────────────────────────────────────────────
+// Returns list of extra ingredients on the plate that weren't ordered
+function getExtras() {
+  return G.plateIds.filter(id => !G.needed.includes(id));
+}
+
+// Total cost of freebies given away
+function computeFrebiePenalty() {
+  return getExtras().reduce((sum, id) => {
+    return sum + (INGREDIENT_PRICES[id] || 0);
+  }, 0);
+}
+
+function serveOrder() {
+  clearInterval(G.timerInt);
+  const payout  = computePayout();
+  const freePen = parseFloat(computeFrebiePenalty().toFixed(2));
+  const final   = parseFloat(Math.max(0, payout - freePen).toFixed(2));
+  G.money = parseFloat((G.money + final).toFixed(2));
+  updateHUD();
+  showResult(payout, freePen, final);
+}
+
+// ─── RESULT SCREEN ──────────────────────────────────────────────
+function showResult(payout, freePenalty, finalPayout) {
+  freePenalty = freePenalty || 0;
+  finalPayout = (finalPayout !== undefined) ? finalPayout : payout;
+  G.phase = 'result';
+  const o        = G.currentOrder;
+  const overtime = Math.max(0, -G.timeLeft);
+  const onTime   = overtime === 0;
+  const win      = finalPayout > 0;
+  const penalty  = parseFloat((o.totalPrice - payout).toFixed(2));
+  const extras   = getExtras();
+
+  bdAnim(win ? 'happy' : 'angry');
+  bdSay(win ? (freePenalty > 0 ? 'freebie' : 'win') : 'lose', 3000);
+
+  const eyeC      = win ? '#44dd77' : '#ff4444';
+  const mouthPath = win ? 'M26 72 Q40 82 54 72' : 'M26 72 Q40 62 54 72';
+
+  showOverlay(`
+    <svg viewBox="0 0 80 100" width="90" height="112" style="margin-bottom:6px;filter:drop-shadow(3px 6px 10px rgba(0,0,0,.8));">
+      <defs>
+        <linearGradient id="rc1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6a6a6a"/><stop offset="25%" stop-color="#aaaaaa"/><stop offset="55%" stop-color="#808080"/><stop offset="100%" stop-color="#4a4a4a"/></linearGradient>
+        <linearGradient id="rl2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8c8c8"/><stop offset="100%" stop-color="#686868"/></linearGradient>
+        <linearGradient id="rt2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="100%" stop-color="#181818"/></linearGradient>
+      </defs>
+      <ellipse cx="40" cy="98" rx="30" ry="4" fill="rgba(0,0,0,.4)"/>
+      <rect x="9" y="77" width="62" height="19" rx="9.5" fill="url(#rt2)" stroke="#111" stroke-width="2"/>
+      <rect x="13" y="80" width="54" height="13" rx="6.5" fill="#252525"/>
+      <rect x="14" y="29" width="52" height="50" rx="9" fill="url(#rc1)" stroke="#2a2a2a" stroke-width="2.5"/>
+      <line x1="21" y1="30" x2="21" y2="78" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <line x1="28" y1="30" x2="28" y2="78" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <line x1="35" y1="30" x2="35" y2="78" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <line x1="42" y1="30" x2="42" y2="78" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <line x1="49" y1="30" x2="49" y2="78" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <line x1="56" y1="30" x2="56" y2="78" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="25" y="57" width="30" height="13" rx="3" fill="#0d0d0d" stroke="#555" stroke-width="1.5"/>
+      <path d="${mouthPath}" stroke="#ddd" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="40" cy="31" rx="28" ry="9" fill="url(#rl2)" stroke="#3a3a3a" stroke-width="2.5"/>
+      <ellipse cx="33" cy="28" rx="10" ry="3" fill="rgba(255,255,255,.22)"/>
+      <rect x="34" y="19" width="12" height="13" rx="6" fill="#606060" stroke="#2a2a2a" stroke-width="1.5"/>
+      <rect x="23" y="9" width="34" height="9" rx="4.5" fill="#f4f4f4" stroke="#c8c8c8" stroke-width="1.5"/>
+      <rect x="27" y="1" width="26" height="11" rx="9" fill="#fafafa" stroke="#d0d0d0" stroke-width="1.5"/>
+      <circle cx="29" cy="42" r="11" fill="#0d0d0d" stroke="#2a2a2a" stroke-width="2"/>
+      <circle cx="51" cy="42" r="11" fill="#0d0d0d" stroke="#2a2a2a" stroke-width="2"/>
+      <circle cx="29" cy="42" r="8" fill="${eyeC}"/>
+      <circle cx="51" cy="42" r="8" fill="${eyeC}"/>
+      <circle cx="25.5" cy="38.5" r="2.5" fill="rgba(255,255,255,.55)"/>
+      <circle cx="47.5" cy="38.5" r="2.5" fill="rgba(255,255,255,.55)"/>
+      <circle cx="29" cy="42" r="11" fill="none" stroke="#4a4a4a" stroke-width="1.5"/>
+      <circle cx="51" cy="42" r="11" fill="none" stroke="#4a4a4a" stroke-width="1.5"/>
+    </svg>
+    <div class="res-head ${win ? 'win' : 'lose'}">${onTime ? 'ORDER UP!' : win ? 'LATE BUT SERVED' : 'COMPED!'}</div>
+    <div class="res-amt">$${money(finalPayout)}</div>
+    <div class="ov-msg">${
+      !win
+        ? `Way too late! ${o.customer.name} ate for free.`
+        : onTime && freePenalty === 0
+        ? `${o.customer.name} is happy! Full price collected.`
+        : onTime && freePenalty > 0
+        ? `${o.customer.name} paid — but you gave away extras for free!`
+        : `${overtime}s late — ${o.customer.name} paid a reduced rate.`
+    }</div>
+    <div class="ob-wrap">
+      <div class="ob-row"><span>Order value</span><span>$${money(o.totalPrice)}</span></div>
+      ${overtime > 0
+        ? `<div class="ob-row" style="color:#ff6644;">
+             <span>Late penalty (${overtime}s)</span>
+             <span>-$${money(penalty)}</span>
+           </div>`
+        : ''}
+      ${freePenalty > 0
+        ? `<div class="ob-row" style="color:#ff4488;">
+             <span>No freebies! (${extras.length} extra)</span>
+             <span>-$${money(freePenalty)}</span>
+           </div>`
+        : ''}
+      <div class="ob-row tot"><span>COLLECTED</span><span>$${money(finalPayout)}</span></div>
+      <div class="ob-row" style="color:#44dd77;margin-top:3px;">
+        <span>Running total</span><span>$${money(G.money)}</span>
+      </div>
+    </div>
+    ${win ? '<button class="ov-btn" onclick="nextOrder()">NEXT ORDER</button>' : '<button class="ov-btn" onclick="nextOrder()" style="background:linear-gradient(180deg,#cc1111,#881010);border-color:#ff4444;color:#fff;">TRY AGAIN</button>'}
+    <button class="ov-btn sec" onclick="cashOut()">CASH OUT</button>
+  `);
+}
+
+function nextOrder() { hideOverlay(); beginOrder(); }
+
+function cashOut() {
+  clearInterval(G.timerInt);
+  const best = G.money > G.highScore && G.orderNum > 0;
+  if (best) G.highScore = G.money;
+  G.phase = 'gameover';
+  bdAnim('idle');
+
+  showOverlay(`
+    <div class="ov-big" style="color:#ff4444;">END OF SHIFT</div>
+    <div class="ov-sub">Bin Diesel powers down...</div>
+    <div style="font-size:32px;color:#f5c842;margin:8px 0;font-family:'VT323',monospace;">
+      Earned: <span style="color:#ff8c1a;">$${money(G.money)}</span>
+    </div>
+    <div style="font-size:20px;color:#f5c842;margin-bottom:5px;font-family:'VT323',monospace;">
+      Orders: ${G.orderNum}
+    </div>
+    ${best ? '<div style="font-size:20px;color:#44dd77;margin:5px 0;font-family:VT323,monospace;">NEW HIGH SCORE!</div>' : ''}
+    ${G.highScore > 0 && !best
+      ? `<div style="font-size:14px;color:#888;margin-bottom:3px;font-family:'VT323',monospace;">
+           Best: $${money(G.highScore)}
+         </div>`
+      : ''}
+    <div style="font-size:14px;color:#c8a060;font-style:italic;margin:10px 0 14px;font-family:'VT323',monospace;">
+      ${rand(BD_QUOTES)}
+    </div>
+    <button class="ov-btn" onclick="startGame()">ANOTHER SHIFT</button>
+  `);
+}
+
+// ─── INIT ───────────────────────────────────────────────────────
+showTitle();
+
+// ─── AUDIO ENGINE ──────────────────────────────────────────────
+let audioCtx = null;
+let musicNodes = [];
+let musicPlaying = false;
+let muted = false;
+let currentPattern = 0;
+let musicTimeout = null;
+
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, startTime, dur, type='square', vol=0.08, slide=0) {
+  if (muted) return;
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, startTime);
+  if (slide) osc.frequency.linearRampToValueAtTime(slide, startTime + dur);
+  gain.gain.setValueAtTime(vol, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+  osc.start(startTime);
+  osc.stop(startTime + dur + 0.01);
+  musicNodes.push(osc);
+}
+
+// Chiptune background music — loop of two 8-bar patterns
+const BPM = 160;
+const BEAT = 60 / BPM;
+const S = BEAT / 2; // sixteenth
+
+// Chiptune taco-shop theme — Tex-Mex minor pentatonic, NOT Mario
+// A minor pentatonic: A(220/440/880) C(262/523) D(294/587) E(330/659) G(392/784)
+const MELODY_A = [
+  [440,S],[0,S],[440,S],[523,S],[0,S],[587,S],[440,S],[0,S],
+  [523,S*1.5],[440,S*0.5],[392,S],[0,S],[330,S],[392,S],[440,S*2],
+  [587,S],[0,S],[587,S],[659,S],[0,S],[587,S],[523,S],[0,S],
+  [440,S*1.5],[523,S*0.5],[440,S],[0,S],[392,S],[0,S*2],[330,S],
+  [392,S],[440,S],[523,S],[587,S],[0,S],[523,S],[440,S],[0,S],
+  [330,S],[392,S],[440,S],[0,S],[523,S],[440,S*1.5],[392,S*0.5],[330,S*2]
+];
+const MELODY_B = [
+  [659,S],[0,S],[659,S],[0,S],[587,S],[523,S],[587,S],[0,S],
+  [659,S*1.5],[587,S*0.5],[523,S],[0,S],[440,S],[0,S*2],[392,S],
+  [523,S],[440,S],[0,S],[392,S],[440,S],[0,S],[523,S],[587,S],
+  [440,S*2],[0,S*2],[330,S],[392,S],[440,S*2],
+  [587,S],[659,S],[784,S],[0,S],[659,S],[587,S],[523,S],[0,S],
+  [440,S*1.5],[392,S*0.5],[330,S],[0,S],[392,S],[440,S*3]
+];
+// Chunky bass — driving clave-style rhythm
+const BASS_A = [
+  [110,S*1.5],[0,S*0.5],[110,S],[0,S],[165,S],[0,S],[110,S],[0,S],
+  [131,S*1.5],[0,S*0.5],[131,S],[0,S],[196,S],[0,S],[131,S],[0,S],
+  [147,S*1.5],[0,S*0.5],[147,S],[0,S],[220,S],[0,S],[147,S],[0,S],
+  [165,S*1.5],[0,S*0.5],[165,S],[0,S],[247,S],[0,S],[165,S],[0,S],
+];
+const BASS_B = [
+  [131,S*1.5],[0,S*0.5],[131,S],[0,S],[196,S],[0,S],[131,S],[0,S],
+  [110,S*1.5],[0,S*0.5],[110,S],[0,S],[165,S],[0,S],[110,S],[0,S],
+  [165,S*1.5],[0,S*0.5],[165,S],[0,S],[247,S],[0,S],[165,S],[0,S],
+  [147,S*1.5],[0,S*0.5],[196,S],[0,S],[220,S],[0,S],[196,S],[0,S],
+];
+
+function playPercussion(type, time) {
+  if (muted) return;
+  const ctx = getCtx();
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const gain = ctx.createGain();
+  const filt = ctx.createBiquadFilter();
+  src.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+  if (type === 'kick') {
+    filt.type = 'lowpass'; filt.frequency.value = 200;
+    gain.gain.setValueAtTime(0.28, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+  } else {
+    filt.type = 'highpass'; filt.frequency.value = 3000;
+    gain.gain.setValueAtTime(0.12, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+  }
+  src.start(time);
+  src.stop(time + 0.15);
+}
+
+function schedulePattern(pattern, startTime) {
+  const mel = pattern === 0 ? MELODY_A : MELODY_B;
+  const bas = pattern === 0 ? BASS_A   : BASS_B;
+  let t = startTime;
+  mel.forEach(([f, d]) => {
+    if (f > 0) playTone(f, t, d * 0.85, 'square', 0.07);
+    t += d;
+  });
+  t = startTime;
+  bas.forEach(([f, d]) => {
+    if (f > 0) playTone(f, t, d * 0.9, 'triangle', 0.09);
+    t += d;
+  });
+  // Percussion grid — kick on beats 1&3, snare on 2&4
+  const beatLen = 60 / BPM;
+  const totalLen = mel.reduce((a,[,d])=>a+d, 0);
+  const numBeats = Math.round(totalLen / beatLen);
+  for (let b = 0; b < numBeats; b++) {
+    const bt = startTime + b * beatLen;
+    if (b % 4 === 0 || b % 4 === 2) playPercussion('kick', bt);
+    else playPercussion('snare', bt);
+  }
+  return totalLen;
+}
+
+function startMusic() {
+  if (musicPlaying || muted) return;
+  musicPlaying = true;
+  function loop() {
+    if (!musicPlaying) return;
+    const ctx = getCtx();
+    const len = schedulePattern(currentPattern, ctx.currentTime);
+    currentPattern = 1 - currentPattern;
+    musicTimeout = setTimeout(loop, (len - 0.05) * 1000);
+  }
+  loop();
+}
+
+function stopMusic() {
+  musicPlaying = false;
+  clearTimeout(musicTimeout);
+  musicNodes.forEach(n => { try { n.stop(); } catch(e){} });
+  musicNodes = [];
+}
+
+function toggleMute() {
+  muted = !muted;
+  document.getElementById('mute-btn').textContent = muted ? '♪ OFF' : '♪ ON';
+  if (muted) stopMusic();
+  else if (G.phase === 'kitchen' || G.phase === 'register') startMusic();
+}
+
+// ─── SFX ───────────────────────────────────────────────────────
+function sfxCoin() {
+  if (muted) return;
+  const ctx = getCtx(), t = ctx.currentTime;
+  playTone(988, t,      0.05, 'square', 0.1);
+  playTone(1319, t+0.05, 0.08, 'square', 0.1);
+}
+
+function sfxAdd() {
+  if (muted) return;
+  const ctx = getCtx(), t = ctx.currentTime;
+  playTone(880, t, 0.04, 'square', 0.06);
+  playTone(1108, t+0.04, 0.06, 'square', 0.06);
+}
+
+function sfxServe() {
+  if (muted) return;
+  const ctx = getCtx(), t = ctx.currentTime;
+  [523,659,784,1047].forEach((f,i) => playTone(f, t + i*0.07, 0.1, 'square', 0.09));
+}
+
+function sfxLate() {
+  if (muted) return;
+  const ctx = getCtx(), t = ctx.currentTime;
+  playTone(311, t,    0.08, 'sawtooth', 0.08);
+  playTone(277, t+0.1,0.08, 'sawtooth', 0.08);
+}
+
+function sfxConfirm() {
+  if (muted) return;
+  const ctx = getCtx(), t = ctx.currentTime;
+  playTone(440, t,     0.05, 'square', 0.07);
+  playTone(554, t+0.05,0.07, 'square', 0.07);
+}
+
+function sfxExplode() {
+  if (muted) return;
+  const ctx = getCtx(), t = ctx.currentTime;
+  // noise burst via fast detuned oscillators
+  [80,60,45,35,55].forEach((f,i) => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f + Math.random()*30, t);
+    o.frequency.exponentialRampToValueAtTime(20, t + 0.6);
+    g.gain.setValueAtTime(0.15, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+    o.start(t + i*0.03);
+    o.stop(t + 0.7);
+  });
+}
+
+function sfxWin() {
+  if (muted) return;
+  const ctx = getCtx(), t = ctx.currentTime;
+  [523,659,784,659,784,1047].forEach((f,i) => playTone(f, t+i*0.1, 0.12, 'square', 0.08));
+}
+
+// ─── EXPLOSION ANIMATION ───────────────────────────────────────
+function triggerExplosion(onDone) {
+  stopMusic();
+  sfxExplode();
+  const bd    = document.getElementById('bd-wrap');
+  const layer = document.getElementById('explosion-layer');
+  const rect  = bd.getBoundingClientRect();
+  const wrap  = document.getElementById('app').getBoundingClientRect();
+  const cx = rect.left - wrap.left + rect.width / 2;
+  const cy = rect.top  - wrap.top  + rect.height / 2;
+
+  // ── Phase 1: violent shake (20 frames, bigger amplitude) ──
+  bd.style.transition = 'none';
+  let shakeCount = 0;
+  let shakeAmp = 8;
+  const shakeInt = setInterval(() => {
+    shakeAmp = Math.min(shakeAmp + 2, 32); // ramp up shake
+    const dx = (Math.random()-0.5) * shakeAmp;
+    const dy = (Math.random()-0.5) * shakeAmp;
+    const rot = (Math.random()-0.5) * 12;
+    bd.style.transform = `translate(${dx}px,${dy}px) rotate(${rot}deg)`;
+    // Eyes flash red while shaking
+    if (shakeCount % 3 === 0) {
+      document.getElementById('eye-l').setAttribute('fill','#ff0000');
+      document.getElementById('eye-r').setAttribute('fill','#ff0000');
+    } else {
+      document.getElementById('eye-l').setAttribute('fill','#ffff00');
+      document.getElementById('eye-r').setAttribute('fill','#ffff00');
+    }
+    // Play sfx bursts during shake
+    if (shakeCount % 4 === 0) sfxExplode();
+
+    if (++shakeCount >= 18) {
+      clearInterval(shakeInt);
+
+      // ── Phase 2: screen flash ──
+      const flash = document.createElement('div');
+      flash.className = 'ex-screen-flash';
+      layer.appendChild(flash);
+
+      // Shockwave ring
+      const shock = document.createElement('div');
+      shock.className = 'exshock';
+      shock.style.cssText = `left:${cx-60}px;top:${cy-60}px;width:120px;height:120px;`;
+      layer.appendChild(shock);
+
+      // ── Phase 3: BD explode animation ──
+      bd.style.filter = 'brightness(20) saturate(0)';
+      setTimeout(() => {
+        document.getElementById('bd-svg').style.animation = 'bdExplode 0.9s ease-in forwards';
+        bd.style.filter = 'brightness(1) drop-shadow(0 0 30px #ff4400)';
+
+        // Central fireball
+        const fb = document.createElement('div');
+        fb.className = 'exfireball';
+        fb.style.cssText = `
+          left:${cx-50}px; top:${cy-50}px;
+          width:100px; height:100px;
+          background:radial-gradient(circle,#ffffff 0%,#ffee00 25%,#ff6600 55%,#cc2200 80%,transparent 100%);
+          animation-duration:.65s;
+        `;
+        layer.appendChild(fb);
+
+        // Second bigger fireball (delayed)
+        setTimeout(() => {
+          const fb2 = document.createElement('div');
+          fb2.className = 'exfireball';
+          fb2.style.cssText = `
+            left:${cx-80}px; top:${cy-80}px;
+            width:160px; height:160px;
+            background:radial-gradient(circle,#ffcc00 0%,#ff6600 40%,#cc2200 70%,transparent 100%);
+            animation-duration:.8s;
+          `;
+          layer.appendChild(fb2);
+        }, 80);
+
+        // Second shockwave
+        setTimeout(() => {
+          const shock2 = document.createElement('div');
+          shock2.className = 'exshock';
+          shock2.style.cssText = `left:${cx-80}px;top:${cy-80}px;width:160px;height:160px;border-color:#ffcc00;animation-duration:.7s;`;
+          layer.appendChild(shock2);
+        }, 120);
+
+        // ── Particles: 60 fire sparks ──
+        const fireColors = ['#ff0000','#ff4400','#ff8800','#ffcc00','#ffffff','#ffaa00','#ff3300','#ff6600'];
+        for (let i = 0; i < 60; i++) {
+          const p = document.createElement('div');
+          p.className = 'expart';
+          const angle = (i / 60) * Math.PI * 2 + Math.random() * 0.3;
+          const dist  = 80 + Math.random() * 180;
+          const size  = 6 + Math.random() * 18;
+          const rot   = Math.random() * 360;
+          p.style.cssText = `
+            left:${cx - size/2}px; top:${cy - size/2}px;
+            width:${size}px; height:${size}px;
+            border-radius:${Math.random() > 0.4 ? '50%' : '2px'};
+            background:${fireColors[Math.floor(Math.random()*fireColors.length)]};
+            --dx:${Math.cos(angle)*dist}px;
+            --dy:${Math.sin(angle)*dist - 60}px;
+            --rot:${rot}deg;
+            animation-duration:${0.7 + Math.random()*0.7}s;
+            animation-delay:${Math.random()*0.15}s;
+          `;
+          layer.appendChild(p);
+        }
+
+        // ── Debris: metal chunks ──
+        for (let i = 0; i < 20; i++) {
+          const p = document.createElement('div');
+          p.className = 'expart';
+          const angle = Math.random() * Math.PI * 2;
+          const dist  = 60 + Math.random() * 200;
+          const size  = 4 + Math.random() * 8;
+          p.style.cssText = `
+            left:${cx - size/2}px; top:${cy - size/2}px;
+            width:${size}px; height:${size}px;
+            border-radius:1px;
+            background:${Math.random()>0.5?'#888':'#555'};
+            --dx:${Math.cos(angle)*dist}px;
+            --dy:${Math.sin(angle)*dist - 40}px;
+            --rot:${Math.random()*720}deg;
+            animation-duration:${1.0 + Math.random()*0.5}s;
+          `;
+          layer.appendChild(p);
+        }
+
+        // ── Smoke puffs (dark, slower) ──
+        for (let i = 0; i < 10; i++) {
+          const p = document.createElement('div');
+          p.className = 'exfireball';
+          const ox = (Math.random()-0.5)*60;
+          const oy = (Math.random()-0.5)*60 - 20;
+          const s  = 30 + Math.random()*40;
+          p.style.cssText = `
+            left:${cx+ox-s/2}px; top:${cy+oy-s/2}px;
+            width:${s}px; height:${s}px;
+            background:radial-gradient(circle,rgba(40,30,20,.7) 0%,rgba(20,15,10,.4) 50%,transparent 100%);
+            animation-duration:${1.0+Math.random()*0.6}s;
+            animation-delay:${0.1+Math.random()*0.3}s;
+          `;
+          layer.appendChild(p);
+        }
+
+        // ── Vibrate device ──
+        if (navigator.vibrate) navigator.vibrate([80,30,120,30,200]);
+
+        setTimeout(() => {
+          layer.innerHTML = '';
+          bd.style.transform = '';
+          bd.style.filter = 'drop-shadow(4px 8px 10px rgba(0,0,0,.8))';
+          document.getElementById('bd-svg').style.animation = '';
+          if (onDone) onDone();
+        }, 2000);
+      }, 60);
+    }
+  }, 55);
+}
+
+// ─── PATCH: music hooks ─────────────────────────────────────────
+// Music starts with each new order
+// Wrap addToPlate to play sfx
+const _origAdd = addToPlate;
+window.addToPlate = function(id) {
+  const before = G.plateIds.length;
+  _origAdd(id);
+  if (G.plateIds.length > before) {
+    sfxAdd();
+    // Show "No freebies!" toast if item wasn't on the order
+    if (!G.needed.includes(id)) {
+      const card = document.getElementById('ic-' + id);
+      if (card) {
+        const rect = card.getBoundingClientRect();
+        const wrap = document.getElementById('app').getBoundingClientRect();
+        const toast = document.createElement('div');
+        toast.className = 'freebie-toast';
+        toast.textContent = 'NO FREEBIES! -$' + ((INGREDIENT_PRICES[id] || 0).toFixed(2));
+        toast.style.left = (rect.left - wrap.left + rect.width/2 - 60) + 'px';
+        toast.style.top  = (rect.top  - wrap.top  - 10) + 'px';
+        document.getElementById('app').appendChild(toast);
+        setTimeout(() => toast.remove(), 950);
+      }
+    }
+  }
+};
+
+// Wrap serveOrder to play sfx
+const _origServe = serveOrder;
+window.serveOrder = function() {
+  stopMusic();
+  const payout  = computePayout();
+  const freePen = parseFloat(computeFrebiePenalty().toFixed(2));
+  const final   = parseFloat(Math.max(0, payout - freePen).toFixed(2));
+  if (payout === 0) {
+    // Comped — explode first then show result
+    clearInterval(G.timerInt);
+    G.money = parseFloat((G.money + 0).toFixed(2));
+    updateHUD();
+    triggerExplosion(() => {
+      document.getElementById('bd-svg').style.opacity = '1';
+      showResult(0, 0, 0);
+    });
+  } else {
+    sfxServe();
+    if (final >= (G.currentOrder ? G.currentOrder.totalPrice * 0.99 : 0)) sfxWin();
+    _origServe();
+  }
+};
+
+// Wrap startGame to stop music and reset
+const _origStart = startGame;
+window.startGame = function() {
+  stopMusic();
+  document.getElementById('explosion-layer').innerHTML = '';
+  const bdSvg = document.getElementById('bd-svg');
+  bdSvg.style.opacity = '1';
+  bdSvg.style.animation = '';
+  _origStart();
+};
+
+// Patch timer late warnings to play sfx
+const _origStartTimer = startTimer;
+window.startTimer = function(secs) {
+  clearInterval(G.timerInt);
+  G.timeLeft = secs;
+  G.baseTime = secs;
+  updateTimerUI();
+  G.timerInt = setInterval(() => {
+    G.timeLeft--;
+    updateTimerUI();
+    if (G.timeLeft <= 10) document.getElementById('app').classList.add('show-hints');
+    if (G.timeLeft <= 5 && G.timeLeft > 0) {
+      sfxLate();
+      bdSay('late');
+      bdAnim('angry');
+    }
+    // Explode exactly when timer hits 0
+    if (G.timeLeft <= 0 && G.phase !== 'exploding') {
+      clearInterval(G.timerInt);
+      G.phase = 'exploding';
+      updateHUD();
+      stopMusic();
+      triggerExplosion(() => {
+        document.getElementById('bd-svg').style.opacity = '1';
+        showResult(0, 0, 0);
+      });
+    }
+  }, 1000);
+};
+
+// Patch nextOrder to restart music
+const _origNextOrder = nextOrder;
+window.nextOrder = function() {
+  hideOverlay();
+  beginOrder();
+};
+
+// Patch cashOut to stop music
+const _origCashOut = cashOut;
+window.cashOut = function() {
+  stopMusic();
+  _origCashOut();
+};
+
+// Auto-start music on first user interaction
+document.getElementById('app').addEventListener('click', () => {
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: false });
+
+</script>
+</body>
+</html>
